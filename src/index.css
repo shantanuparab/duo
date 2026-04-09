@@ -746,7 +746,27 @@ html, body {
 .milestone-next-label { font-size: .7rem; color: var(--text-dim); font-weight: 600; white-space: nowrap; }
 .milestone-next-info { font-size: .8rem; color: var(--text-bright); font-weight: 600; }
 
-.ourspace-btn { margin-bottom: .6rem; font-size: .85rem !important; }
+/* Waiting banner */
+.waiting-banner {
+  width: 100%; display: flex; align-items: center; gap: .5rem;
+  padding: .5rem .75rem; border-radius: var(--radius-sm);
+  background: var(--accent-soft); border: 1px solid rgba(168,85,247,.2);
+  margin-bottom: .5rem; font-size: .8rem; color: var(--text);
+}
+
+/* Locked previews */
+.locked-previews { display: flex; flex-direction: column; gap: .35rem; width: 100%; margin-bottom: .75rem; }
+.locked-preview-card {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .5rem .6rem; background: rgba(255,255,255,.02);
+  border: 1px dashed rgba(255,255,255,.08); border-radius: var(--radius-sm);
+  opacity: .5;
+}
+.lp-emoji { font-size: 1.1rem; width: 1.8rem; text-align: center; }
+.lp-info { flex: 1; display: flex; flex-direction: column; }
+.lp-label { font-size: .8rem; font-weight: 600; color: var(--text-bright); }
+.lp-desc { font-size: .65rem; color: var(--text-dim); }
+.lp-level { font-size: .7rem; font-weight: 700; color: var(--text-dim); }
 
 .deck-card.locked { opacity: .45; cursor: default; }
 .locked-label { color: var(--text-dim) !important; font-size: .6rem !important; }

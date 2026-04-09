@@ -5,7 +5,7 @@ import PixelChar, { DEFAULT_CHAR } from "../components/PixelChar";
 import PixelPet from "../components/PixelPet";
 import DiceRoll from "../components/DiceRoll";
 import MoodSlider, { getMood, DEFAULT_MOOD } from "../components/MoodSlider";
-import { getUnlockedDecks, getUnlockedFeatures, getNextMilestone } from "../data/milestones";
+import { getUnlockedDecks, getUnlockedFeatures, getNextMilestone, getLockedPreviews, MILESTONES } from "../data/milestones";
 import Play from "./Play";
 import DateBoard from "./DateBoard";
 import CharEdit from "./CharEdit";
@@ -293,6 +293,10 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   const unlockedDeckIds = getUnlockedDecks(lvl.level);
   const features = getUnlockedFeatures(lvl.level);
   const nextMs = getNextMilestone(lvl.level);
+  const lockedPreviews = getLockedPreviews(lvl.level);
+
+  // Is there a card waiting for partner? Lock card drawing
+  const waitingForPartner = currentCard && dismissedCard === currentCard?.cardId;
 
   // Build all decks including custom + favorites
   const customRemaining = customCards.filter((c) => !playedCards.includes(c.id)).length;
@@ -435,8 +439,17 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
         )}
       </div>
 
+      {/* Waiting banner */}
+      {waitingForPartner && (
+        <div className="waiting-banner fade-in">
+          <span className="pulse-dot" style={{ display: "inline-block", width: 8, height: 8 }} />
+          <span>Waiting for {them?.name} to answer...</span>
+          <button className="btn btn-ghost" onClick={() => { setDismissedCard(null); setView("play"); }} style={{ width: "auto", padding: ".3rem .6rem", fontSize: ".75rem" }}>View card</button>
+        </div>
+      )}
+
       {/* Dice roll button */}
-      <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)}>
+      <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)} disabled={waitingForPartner}>
         🎲 Roll for a Deck
       </button>
 
@@ -448,8 +461,8 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
             key={d.id}
             className={`deck-card ${d.locked ? "locked" : ""}`}
             style={{ borderColor: d.locked ? "rgba(255,255,255,.04)" : d.color + "44", background: d.locked ? "rgba(255,255,255,.02)" : d.color + "11" }}
-            onClick={() => !d.locked && handleDrawCard(d.id)}
-            disabled={d.remaining === 0 || d.locked}
+            onClick={() => !d.locked && !waitingForPartner && handleDrawCard(d.id)}
+            disabled={d.remaining === 0 || d.locked || waitingForPartner}
           >
             {d.locked ? (
               <>
@@ -511,6 +524,25 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
           🔗 {room}
         </button>
       </div>
+
+      {/* Coming Soon — locked previews */}
+      {lockedPreviews.length > 0 && (
+        <>
+          <h3 className="hub-section-title">Coming Soon</h3>
+          <div className="locked-previews">
+            {lockedPreviews.map((p) => (
+              <div key={p.feature} className="locked-preview-card">
+                <span className="lp-emoji">{p.emoji}</span>
+                <div className="lp-info">
+                  <span className="lp-label">{p.label}</span>
+                  <span className="lp-desc">{p.desc}</span>
+                </div>
+                <span className="lp-level">Lv.{p.level}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Footer */}
       <div className="hub-footer">
