@@ -958,3 +958,93 @@ html, body {
 
 .invite-text { font-size: .85rem; color: var(--text-dim); margin-bottom: .4rem; line-height: 1.5; }
 .invite-text strong { color: var(--text-bright); }
+
+/* ============================================
+   Pet tricks & playground
+   ============================================ */
+
+.pet-tricks { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; margin-top: .4rem; }
+.trick-badge {
+  font-size: .65rem; padding: .2rem .5rem; border-radius: 12px;
+  background: var(--accent-soft); color: var(--accent); font-weight: 600;
+}
+.trick-result { font-size: .85rem; font-weight: 600; color: var(--text-bright); text-align: center; }
+
+.pet-option.locked {
+  opacity: .4; cursor: default; pointer-events: none;
+}
+
+.gift-btn.locked {
+  opacity: .3; cursor: default; pointer-events: none;
+  border: 1px dashed rgba(255,255,255,.1);
+}
+
+.os-play-tab { display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+.os-play-tab h3 { font-size: 1rem; font-weight: 700; color: var(--text-bright); }
+.pet-display.small { padding: .5rem; }
+.toy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; width: 100%; }
+.toy-btn {
+  display: flex; flex-direction: column; align-items: center; gap: .2rem;
+  padding: .75rem; background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
+  font-family: var(--font);
+}
+.toy-btn:hover { border-color: var(--accent); transform: scale(1.05); }
+.toy-btn:active { transform: scale(.95); }
+.toy-emoji { font-size: 1.5rem; }
+.toy-name { font-size: .6rem; color: var(--text-dim); }
+
+/* ============================================
+   Notes
+   ============================================ */
+
+.os-notes-tab { display: flex; flex-direction: column; gap: .75rem; }
+.note-compose { display: flex; flex-direction: column; gap: .5rem; }
+.note-compose-row { display: flex; gap: .4rem; align-items: center; }
+.note-photo-preview {
+  width: 40px; height: 40px; object-fit: cover;
+  border-radius: 6px; border: 1px solid rgba(255,255,255,.1);
+}
+
+.note-list { display: flex; flex-direction: column; gap: .5rem; margin-top: .5rem; }
+.note-card {
+  padding: .75rem; border-radius: var(--radius-sm);
+  background: var(--bg-card); border: 1px solid rgba(168,85,247,.12);
+}
+.note-card.theirs { border-color: rgba(236,72,153,.12); }
+.note-from {
+  font-size: .65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .04em; display: block; margin-bottom: .3rem;
+}
+.note-card.mine .note-from { color: var(--accent); }
+.note-card.theirs .note-from { color: var(--pink); }
+.note-text { font-size: .9rem; color: var(--text-bright); line-height: 1.5; }
+.note-photo {
+  width: 100%; max-height: 200px; object-fit: cover;
+  border-radius: 8px; margin-top: .4rem;
+}
+
+/* ============================================
+   Bouquets
+   ============================================ */
+
+.os-bouquet-tab { display: flex; flex-direction: column; gap: .75rem; }
+.bouquet-send-row { display: flex; gap: .4rem; }
+.bouquet-send-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: .2rem;
+  padding: .6rem; background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
+  font-family: var(--font);
+}
+.bouquet-send-btn:hover { border-color: var(--accent); }
+.bouquet-send-btn:active { transform: scale(.97); }
+
+.bouquet-list { display: flex; flex-direction: column; gap: .5rem; }
+.bouquet-card {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem; background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm);
+}
+.bouquet-emoji { font-size: 1.2rem; }
+.bouquet-info { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
+.bouquet-name { font-size: .8rem; color: var(--text-bright); font-weight: 600; }

@@ -413,9 +413,9 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
       })()}
 
       {/* Our Space button */}
-      {features.has("pet") && (
+      {(features.has("pet") || features.has("notes")) && (
         <button className="btn btn-secondary ourspace-btn" onClick={() => setView("ourspace")}>
-          🐾 Pets &nbsp;|&nbsp; 🎁 Gifts &nbsp;|&nbsp; 🎵 Songs
+          🐾 Our Space
         </button>
       )}
 
