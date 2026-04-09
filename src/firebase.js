@@ -3,6 +3,7 @@ import {
   getFirestore,
   doc,
   getDoc,
+  getDocFromServer,
   setDoc,
   updateDoc,
   onSnapshot,
@@ -55,7 +56,7 @@ export async function createRoom(playerName, character, partnerName, welcomeMsg)
 export async function joinRoom(code, playerName, character) {
   const upper = code.toUpperCase();
   const roomRef = doc(db, "rooms", upper);
-  const snap = await getDoc(roomRef);
+  const snap = await getDocFromServer(roomRef).catch(() => getDoc(roomRef));
   if (!snap.exists()) throw new Error("Room not found");
 
   const data = snap.data();
@@ -97,7 +98,7 @@ export async function joinRoom(code, playerName, character) {
 export async function rejoinRoom(code) {
   const upper = code.toUpperCase();
   const roomRef = doc(db, "rooms", upper);
-  const snap = await getDoc(roomRef);
+  const snap = await getDocFromServer(roomRef).catch(() => getDoc(roomRef));
   if (!snap.exists()) throw new Error("Room not found");
 
   const data = snap.data();
