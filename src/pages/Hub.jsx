@@ -405,6 +405,10 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
           <span className="stat-num">🃏 {playedCards.length}</span>
           <span className="stat-label">cards</span>
         </div>
+        <div className="stat-card" onClick={() => setView("games")} style={{ cursor: "pointer" }}>
+          <span className="stat-num">🏆 {(roomData?.leaderboard?.[playerId] || 0)}-{(roomData?.leaderboard?.[them?.id] || 0)}</span>
+          <span className="stat-label">games</span>
+        </div>
       </div>
 
       {/* Next milestone */}
@@ -434,9 +438,9 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
         {features.has("apartment") && (
           <button className="btn btn-secondary" onClick={() => setView("apartment")}>🏠 Home</button>
         )}
-        {features.has("miniGames") && partnerIsOnline && (
-          <button className="btn btn-secondary" onClick={() => setView("games")}>🎮 Games</button>
-        )}
+        <button className="btn btn-secondary" onClick={() => setView("games")}>
+          🎮 Games {partnerIsOnline && <span style={{ fontSize: ".6rem", color: "var(--green)" }}> LIVE</span>}
+        </button>
       </div>
 
       {/* Waiting banner */}

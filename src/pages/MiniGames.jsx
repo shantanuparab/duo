@@ -135,20 +135,46 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
     }
   }, [gameState?.gameId]);
 
+  const [lastWinner, setLastWinner] = useState(null);
+
+  const PRIZE_GIFTS = ["🏆", "⭐", "🌟", "🎖️", "💎"];
+
   async function endGame(winnerId) {
     if (winnerId) {
       const lb = { ...leaderboard };
       lb[winnerId] = (lb[winnerId] || 0) + 1;
-      await updateDoc(doc(db, "rooms", room), { leaderboard: lb });
+      // Winner gets a gift token to give to partner
+      const gifts = roomData?.gameGifts || {};
+      gifts[winnerId] = (gifts[winnerId] || 0) + 1;
+      await updateDoc(doc(db, "rooms", room), { leaderboard: lb, gameGifts: gifts });
     }
+    setLastWinner(winnerId);
     await setDoc(doc(db, "rooms", room, "game", "current"), { gameId: null });
     setScreen("results");
+  }
+
+  async function sendPrize() {
+    if (!lastWinner) return;
+    const gifts = roomData?.gameGifts || {};
+    if ((gifts[lastWinner] || 0) <= 0) return;
+    gifts[lastWinner] = gifts[lastWinner] - 1;
+    await updateDoc(doc(db, "rooms", room), { gameGifts: gifts });
+    // Send a gift in the gifts collection
+    await setDoc(doc(db, "rooms", room, "gifts", Date.now().toString()), {
+      emoji: PRIZE_GIFTS[Math.floor(Math.random() * PRIZE_GIFTS.length)],
+      name: "Game Trophy",
+      from: lastWinner === playerId ? me?.name : them?.name,
+      to: lastWinner === playerId ? them?.name : me?.name,
+      message: "Won it fair and square! 🏆",
+      at: serverTimestamp(),
+    });
   }
 
   function backToLobby() {
     setScreen("lobby");
     setGameId(null);
     setGameState(null);
+    setLastWinner(null);
   }
 
   // ====== LOBBY ======
@@ -226,10 +252,15 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
   }
 
   // ====== RESULTS ======
+  const winnerName = lastWinner === playerId ? me?.name : lastWinner === partnerId ? them?.name : null;
+  const iWon = lastWinner === playerId;
+
   return (
     <div className="page games fade-in">
       <div className="games-result">
-        <h2>🏆 Game Over!</h2>
+        <h2>{lastWinner ? "🏆 Winner!" : "🤝 It's a tie!"}</h2>
+        {winnerName && <p className="winner-name">{winnerName} wins!</p>}
+
         <div className="leaderboard big">
           <div className={`lb-player ${myWins >= theirWins ? "leading" : ""}`}>
             <span className="lb-name">{me?.name}</span>
@@ -241,6 +272,13 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
             <span className="lb-score">{theirWins}</span>
           </div>
         </div>
+
+        {iWon && (
+          <button className="btn btn-secondary" onClick={sendPrize}>
+            🏆 Send Trophy to {them?.name}
+          </button>
+        )}
+
         <button className="btn btn-primary" onClick={backToLobby}>Play Again</button>
         <button className="btn btn-ghost" onClick={onBack}>Back to Hub</button>
       </div>
