@@ -12,6 +12,8 @@ import CharEdit from "./CharEdit";
 import Onboarding from "./Onboarding";
 import CreateCard from "./CreateCard";
 import OurSpace from "./OurSpace";
+import Apartment from "./Apartment";
+import MiniGames from "./MiniGames";
 
 const LEVELS = [0, 50, 150, 300, 500, 800, 1200, 1700, 2400, 3200, 99999];
 function getLevel(xp) {
@@ -278,6 +280,8 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   if (view === "charedit") return <CharEdit room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "createcard") return <CreateCard room={room} onBack={() => setView("hub")} />;
   if (view === "ourspace") return <OurSpace room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
+  if (view === "apartment") return <Apartment room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
+  if (view === "games") return <MiniGames room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
 
   // Milestones
   const unlockedDeckIds = getUnlockedDecks(lvl.level);
@@ -412,12 +416,18 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
         ) : null;
       })()}
 
-      {/* Our Space button */}
-      {(features.has("pet") || features.has("notes")) && (
-        <button className="btn btn-secondary ourspace-btn" onClick={() => setView("ourspace")}>
-          🐾 Our Space
-        </button>
-      )}
+      {/* Feature buttons */}
+      <div className="hub-feature-row">
+        {(features.has("pet") || features.has("notes")) && (
+          <button className="btn btn-secondary" onClick={() => setView("ourspace")}>🐾 Our Space</button>
+        )}
+        {features.has("apartment") && (
+          <button className="btn btn-secondary" onClick={() => setView("apartment")}>🏠 Home</button>
+        )}
+        {features.has("miniGames") && partnerIsOnline && (
+          <button className="btn btn-secondary" onClick={() => setView("games")}>🎮 Games</button>
+        )}
+      </div>
 
       {/* Dice roll button */}
       <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)}>

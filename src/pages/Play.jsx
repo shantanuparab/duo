@@ -217,8 +217,11 @@ export default function Play({ room, playerId, roomData, customCards = [], favor
 
   return (
     <div className="page play fade-in">
-      {/* Header */}
+      {/* Header — back button when waiting */}
       <div className="play-header">
+        {myAnswer !== undefined && !bothDone && (
+          <button className="btn btn-ghost back-btn" onClick={onBack} style={{ marginRight: ".5rem" }}>← Hub</button>
+        )}
         <span className="deck-badge" style={{ background: deck.color + "22", color: deck.color }}>
           {deck.emoji} {deck.name}
         </span>

@@ -1048,3 +1048,182 @@ html, body {
 .bouquet-emoji { font-size: 1.2rem; }
 .bouquet-info { flex: 1; display: flex; flex-direction: column; gap: .2rem; }
 .bouquet-name { font-size: .8rem; color: var(--text-bright); font-weight: 600; }
+
+/* Hub feature row */
+.hub-feature-row { display: flex; gap: .4rem; width: 100%; margin-bottom: .6rem; }
+.hub-feature-row .btn { flex: 1; font-size: .8rem; padding: .6rem; }
+
+/* ============================================
+   Apartment
+   ============================================ */
+
+.apt { align-items: stretch; gap: .75rem; }
+.apt-header { display: flex; align-items: center; gap: .5rem; }
+.apt-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text-bright); }
+
+.apt-rooms { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.apt-room {
+  background: var(--bg-card); border: 1.5px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm); padding: .6rem; cursor: pointer;
+  transition: all .2s; font-family: var(--font); position: relative;
+  min-height: 80px; display: flex; flex-direction: column; justify-content: space-between;
+}
+.apt-room:hover { border-color: rgba(255,255,255,.15); }
+.apt-room:active { transform: scale(.97); }
+.apt-room.me-here { border-color: var(--accent); background: var(--accent-soft); }
+.apt-room.them-here { border-color: var(--pink); }
+.apt-room.me-here.them-here { border-image: linear-gradient(135deg, var(--accent), var(--pink)) 1; }
+
+.apt-room-top { display: flex; align-items: center; gap: .3rem; }
+.apt-room-emoji { font-size: 1.1rem; }
+.apt-room-name { font-size: .7rem; font-weight: 600; color: var(--text-dim); }
+.apt-room-chars { display: flex; gap: .2rem; align-items: flex-end; margin-top: .3rem; }
+.apt-you-badge {
+  position: absolute; top: .3rem; right: .4rem;
+  font-size: .5rem; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+
+.apt-status { margin-top: .25rem; }
+.apt-status p { font-size: .8rem; color: var(--text-dim); margin-bottom: .15rem; }
+.apt-status strong { color: var(--text-bright); }
+
+.apt-offices { display: flex; gap: .4rem; margin-top: .5rem; }
+.apt-offices .btn { flex: 1; font-size: .8rem; }
+.apt-section-title { font-size: .8rem; font-weight: 700; color: var(--text-dim); margin: .5rem 0 .3rem; }
+
+/* Office */
+.office-scene {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius); padding: 1.5rem; text-align: center;
+  min-height: 150px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .5rem;
+}
+.office-desk { position: relative; }
+.office-desk-items { display: flex; gap: .3rem; margin-top: .3rem; justify-content: center; }
+.office-item { font-size: 1.2rem; }
+.office-online { font-size: .8rem; color: var(--green); }
+.office-offline { font-size: .8rem; color: var(--text-dim); }
+
+.office-items-grid { display: flex; flex-wrap: wrap; gap: .4rem; }
+.office-item-btn {
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 1.2rem;
+  transition: all .2s; position: relative;
+}
+.office-item-btn.placed { border-color: var(--accent); background: var(--accent-soft); }
+.office-check { position: absolute; bottom: 1px; right: 2px; font-size: .5rem; color: var(--green); }
+
+/* ============================================
+   Mini Games
+   ============================================ */
+
+.games { align-items: stretch; gap: .75rem; }
+.games-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .25rem; }
+.games-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text-bright); }
+.game-timer { font-size: 1rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.game-title { font-size: .9rem; font-weight: 600; color: var(--text-bright); }
+
+/* Leaderboard */
+.leaderboard {
+  display: flex; align-items: center; justify-content: center; gap: .75rem;
+  padding: .6rem; background: var(--bg-card); border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,.06); margin-bottom: .75rem;
+}
+.leaderboard.big { padding: 1rem; margin: 1rem 0; }
+.lb-player { text-align: center; }
+.lb-player.leading .lb-score { color: var(--accent); }
+.lb-name { font-size: .7rem; color: var(--text-dim); font-weight: 600; display: block; }
+.lb-score { font-size: 1.5rem; font-weight: 800; color: var(--text-bright); }
+.lb-vs { font-size: .75rem; color: var(--text-dim); font-weight: 600; }
+
+.games-offline { text-align: center; padding: 2rem 0; }
+.games-offline p { color: var(--text-dim); }
+
+.game-list { display: flex; flex-direction: column; gap: .4rem; }
+.game-card {
+  display: flex; align-items: center; gap: .6rem; padding: .75rem;
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,.06);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all .2s;
+  font-family: var(--font); width: 100%;
+}
+.game-card:hover { border-color: var(--accent); }
+.game-card:active { transform: scale(.98); }
+.game-emoji { font-size: 1.3rem; }
+.game-info { flex: 1; display: flex; flex-direction: column; }
+.game-name { font-size: .85rem; font-weight: 700; color: var(--text-bright); }
+.game-desc { font-size: .7rem; color: var(--text-dim); }
+.game-time { font-size: .7rem; color: var(--text-dim); font-weight: 600; }
+
+.games-result { text-align: center; padding: 2rem 0; display: flex; flex-direction: column; align-items: center; gap: .75rem; }
+
+/* Speed WYR */
+.wyr-game { text-align: center; }
+.wyr-round { font-size: .75rem; color: var(--text-dim); font-weight: 600; margin-bottom: .4rem; }
+.wyr-q { font-size: 1.1rem; font-weight: 700; color: var(--text-bright); margin-bottom: 1rem; }
+.wyr-reveal { margin-top: 1rem; }
+
+/* Memory */
+.memory-game { width: 100%; }
+.memory-scores { display: flex; justify-content: space-between; margin-bottom: .5rem; font-size: .8rem; color: var(--text-dim); }
+.memory-scores .active { color: var(--accent); font-weight: 700; }
+.memory-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: .4rem; }
+.mem-card {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-card); border: 1.5px solid rgba(255,255,255,.1);
+  border-radius: var(--radius-sm); cursor: pointer; font-size: 1.5rem;
+  transition: all .2s; font-family: var(--font); color: var(--text-dim);
+}
+.mem-card.flipped { background: var(--accent-soft); border-color: var(--accent); }
+.mem-card.matched { background: rgba(52,211,153,.1); border-color: var(--green); opacity: .6; }
+.mem-card:disabled { cursor: default; }
+
+/* Tap Battle */
+.tap-game { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.tap-scores { display: flex; align-items: center; gap: 1rem; }
+.tap-score { text-align: center; }
+.tap-score span:first-child { font-size: 2rem; font-weight: 800; color: var(--text-bright); display: block; }
+.tap-score.mine span:first-child { color: var(--accent); }
+.tap-score.theirs span:first-child { color: var(--pink); }
+.tap-name { font-size: .7rem; color: var(--text-dim); }
+.tap-vs { font-size: .8rem; color: var(--text-dim); }
+.tap-btn {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--pink));
+  border: none; cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .2rem;
+  font-family: var(--font); color: #fff; font-size: 1rem; font-weight: 800;
+  box-shadow: 0 4px 20px var(--accent-glow); transition: transform .05s;
+}
+.tap-btn span:first-child { font-size: 2rem; }
+.tap-btn:active { transform: scale(.9); }
+
+/* Word Chain */
+.chain-game { width: 100%; }
+.chain-words { display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .75rem; min-height: 40px; }
+.chain-word {
+  padding: .3rem .6rem; border-radius: 12px; font-size: .8rem; font-weight: 600;
+}
+.chain-word.mine { background: var(--accent-soft); color: var(--accent); }
+.chain-word.theirs { background: var(--pink-soft); color: var(--pink); }
+.chain-input { display: flex; flex-direction: column; gap: .4rem; }
+.chain-hint { font-size: .8rem; color: var(--text-dim); }
+.chain-hint strong { color: var(--text-bright); font-size: 1rem; }
+.chain-row { display: flex; gap: .4rem; }
+.chain-row .input { flex: 1; }
+
+/* Trivia */
+.trivia-game { width: 100%; text-align: center; }
+.trivia-q { font-size: 1rem; font-weight: 700; color: var(--text-bright); margin-bottom: .75rem; }
+.trivia-opts { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+.trivia-opt {
+  padding: .65rem; background: var(--bg-card); border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font);
+  font-size: .85rem; color: var(--text-bright); transition: all .2s;
+}
+.trivia-opt:hover { border-color: var(--accent); }
+.trivia-opt:active { transform: scale(.97); }
+.trivia-reveal { margin: .75rem 0; }
+.trivia-reveal p { font-size: .85rem; color: var(--text); margin-bottom: .3rem; }
+.trivia-scores { display: flex; justify-content: center; gap: 1.5rem; margin-top: .75rem; font-size: .8rem; color: var(--text-dim); font-weight: 600; }
