@@ -53,6 +53,7 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   const [lastPokeId, setLastPokeId] = useState(null);
   const [pokeCooldown, setPokeCooldown] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
+  const [dismissedCard, setDismissedCard] = useState(null); // card ID we chose to leave
 
   const p1 = roomData?.player1;
   const p2 = roomData?.player2;
@@ -159,10 +160,15 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
     if (ended) setShowHeartbreak(true);
   }, [ended]);
 
-  // Active card → play
+  // Active card → play (but not if user dismissed it to go to hub)
   useEffect(() => {
-    if (currentCard && view === "hub") setView("play");
-  }, [currentCard, view]);
+    if (currentCard && view === "hub" && dismissedCard !== currentCard?.cardId) setView("play");
+  }, [currentCard, view, dismissedCard]);
+
+  // Reset dismissed when card changes (partner answered, new card drawn)
+  useEffect(() => {
+    if (!currentCard || currentCard?.cardId !== dismissedCard) setDismissedCard(null);
+  }, [currentCard?.cardId]);
 
   async function handleDrawCard(deckId) {
     if (deckId === "custom") {
@@ -275,7 +281,7 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   }
 
   // Sub-views
-  if (view === "play" && currentCard) return <Play room={room} playerId={playerId} roomData={roomData} customCards={customCards} favorites={favorites} onBack={() => setView("hub")} />;
+  if (view === "play" && currentCard) return <Play room={room} playerId={playerId} roomData={roomData} customCards={customCards} favorites={favorites} onBack={() => { setDismissedCard(currentCard?.cardId); setView("hub"); }} />;
   if (view === "dateboard") return <DateBoard room={room} playerId={playerId} p1={p1} p2={p2} onBack={() => setView("hub")} />;
   if (view === "charedit") return <CharEdit room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "createcard") return <CreateCard room={room} onBack={() => setView("hub")} />;
