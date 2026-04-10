@@ -555,6 +555,29 @@ html, body {
   border-radius: var(--radius-sm); margin-top: .3rem;
 }
 
+/* Tappable photos */
+.photo-tappable { cursor: pointer; transition: opacity .15s; }
+.photo-tappable:active { opacity: .7; }
+
+/* Fullscreen photo viewer */
+.photo-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.9);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200; padding: 1rem; backdrop-filter: blur(8px);
+}
+.photo-modal {
+  display: flex; flex-direction: column; align-items: center;
+  gap: .75rem; max-width: 100%; max-height: 100%;
+}
+.photo-modal-img {
+  max-width: 100%; max-height: 75dvh; object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+.photo-modal-actions {
+  display: flex; gap: .5rem;
+}
+.photo-modal-actions .btn { width: auto; padding: .5rem 1.2rem; font-size: .85rem; }
+
 /* ============================================
    Favorite button
    ============================================ */

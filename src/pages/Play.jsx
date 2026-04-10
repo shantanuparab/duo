@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { subscribeCard, submitAnswer, submitRating, submitGuess, clearCurrentCard, pinAnswer, toggleFavorite } from "../firebase";
 import { getDeck, getCard } from "../data/cards";
 import PixelChar, { DEFAULT_CHAR } from "../components/PixelChar";
+import { PhotoImg } from "../components/PhotoViewer";
 import confetti from "canvas-confetti";
 
 const XP_MAP = { choice: 10, thisorthat: 5, text: 15, photo: 20, hottake: 15, twoTruths: 20, rate: 10 };
@@ -200,7 +201,7 @@ export default function Play({ room, playerId, roomData, customCards = [], favor
     if (typeof ans === "object" && ans?.image) {
       return (
         <div>
-          <img src={ans.image} className="reveal-img" alt="" />
+          <PhotoImg src={ans.image} className="reveal-img" />
           {ans.text && <p style={{ marginTop: ".4rem" }}>{ans.text}</p>}
         </div>
       );

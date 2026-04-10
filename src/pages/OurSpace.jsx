@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { updateDoc, doc, getFirestore, serverTimestamp, setDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
 import PixelPet, { PET_TYPES, PET_NAMES_DEFAULT, PET_UNLOCK } from "../components/PixelPet";
+import { PhotoImg } from "../components/PhotoViewer";
 import { getUnlockedFeatures } from "../data/milestones";
 import { getLevelNumber } from "../data/levels";
 
@@ -492,7 +493,7 @@ export default function OurSpace({ room, playerId, roomData, onBack }) {
               <div key={n.id} className={`note-card ${n.from === me?.name ? "mine" : "theirs"} fade-in`}>
                 <span className="note-from">{n.from}</span>
                 {n.text && <p className="note-text">{n.text}</p>}
-                {n.photo && <img src={n.photo} className="note-photo" alt="" />}
+                {n.photo && <PhotoImg src={n.photo} className="note-photo" />}
               </div>
             ))}
           </div>

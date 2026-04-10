@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { subscribePins, unpinAnswer } from "../firebase";
 import { getCard } from "../data/cards";
+import { PhotoImg } from "../components/PhotoViewer";
 
 function renderPinAnswer(answer, pin) {
   if (answer == null) return null;
@@ -9,7 +10,7 @@ function renderPinAnswer(answer, pin) {
   if (typeof answer === "object" && !Array.isArray(answer) && answer.image) {
     return (
       <div>
-        <img src={answer.image} className="pin-img" alt="" />
+        <PhotoImg src={answer.image} className="pin-img" />
         {answer.text && <p style={{ marginTop: ".3rem" }}>{answer.text}</p>}
       </div>
     );
