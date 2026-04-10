@@ -1151,6 +1151,16 @@ html, body {
 .office-desk-items { display: flex; gap: .3rem; margin-top: .3rem; justify-content: center; }
 .office-item { font-size: 1.2rem; }
 .office-status { font-size: .8rem; color: var(--text-dim); margin-top: .3rem; }
+.office-desk-overlay {
+  position: absolute; bottom: 45%; left: 12%;
+  display: flex; gap: 2px; z-index: 3;
+}
+.office-item-overlay { font-size: .9rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+.office-status-overlay {
+  position: absolute; top: .4rem; right: .5rem;
+  font-size: .7rem; color: var(--text-bright); z-index: 3;
+  background: rgba(0,0,0,.5); padding: .15rem .4rem; border-radius: 4px;
+}
 .office-items-grid { display: flex; flex-wrap: wrap; gap: .4rem; }
 .office-item-btn {
   width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;

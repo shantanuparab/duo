@@ -170,6 +170,98 @@ function drawRoomBackground(roomConfig, width, height) {
   return canvas;
 }
 
+// Generate a Pokemon-style office background
+function drawOfficeBackground(width, height) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  const fw = 8;
+
+  // Wall — warm wood paneling
+  ctx.fillStyle = "#3a3050";
+  ctx.fillRect(0, 0, width, height * 0.55);
+
+  // Wall accent stripe
+  ctx.fillStyle = "#4a4068";
+  ctx.fillRect(0, height * 0.32, width, 2);
+  ctx.fillRect(0, height * 0.34, width, 1);
+
+  // Floor — office carpet checkerboard
+  const floorY = Math.floor(height * 0.55);
+  for (let y = floorY; y < height; y += fw) {
+    for (let x = 0; x < width; x += fw) {
+      const checker = ((x / fw) + (y / fw)) % 2 === 0;
+      ctx.fillStyle = checker ? "#3a3548" : "#453f58";
+    ctx.fillRect(x, y, fw, fw);
+    }
+  }
+  ctx.fillStyle = "#5a5078";
+  ctx.fillRect(0, floorY - 1, width, 2);
+
+  // Desk — large L-shaped
+  ctx.fillStyle = "#6a5a40";
+  ctx.fillRect(fw * 3, floorY - fw * 4, fw * 12, fw * 4);
+  ctx.fillStyle = "#7a6a50";
+  ctx.fillRect(fw * 3, floorY - fw * 4, fw * 12, fw);
+
+  // Monitor on desk
+  ctx.fillStyle = "#1a1a2e";
+  ctx.fillRect(fw * 6, floorY - fw * 7, fw * 6, fw * 4);
+  ctx.fillStyle = "#3a5a8e";
+  ctx.fillRect(fw * 7, floorY - fw * 6, fw * 4, fw * 2);
+  // Monitor stand
+  ctx.fillStyle = "#2a2a3e";
+  ctx.fillRect(fw * 8, floorY - fw * 3, fw * 2, fw);
+
+  // Keyboard
+  ctx.fillStyle = "#2a2a3e";
+  ctx.fillRect(fw * 6, floorY - fw * 3, fw * 5, fw);
+  ctx.fillStyle = "#4a4a5e";
+  for (let x = 0; x < 4; x++) {
+    ctx.fillRect(fw * (7 + x), floorY - fw * 3 + 2, fw - 2, fw - 4);
+  }
+
+  // Chair
+  ctx.fillStyle = "#4a3060";
+  ctx.fillRect(fw * 7, floorY - fw * 2, fw * 4, fw * 2);
+  ctx.fillStyle = "#5a4070";
+  ctx.fillRect(fw * 7, floorY - fw * 2, fw * 4, fw);
+
+  // Bookshelf on wall (right side)
+  ctx.fillStyle = "#5a4a38";
+  ctx.fillRect(fw * 20, height * 0.1, fw * 6, fw * 7);
+  ctx.fillStyle = "#6a5a48";
+  ctx.fillRect(fw * 20, height * 0.1, fw * 6, fw);
+  ctx.fillRect(fw * 20, height * 0.1 + fw * 3, fw * 6, fw);
+  // Books
+  const bookColors = ["#c04040", "#4080c0", "#40a060", "#c0a040", "#8060c0"];
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = bookColors[i];
+    ctx.fillRect(fw * (21 + i), height * 0.1 + fw, fw - 1, fw * 2);
+  }
+  for (let i = 0; i < 4; i++) {
+    ctx.fillStyle = bookColors[i + 1];
+    ctx.fillRect(fw * (21 + i), height * 0.1 + fw * 4, fw - 1, fw * 2);
+  }
+
+  // Plant in corner
+  ctx.fillStyle = "#40a060";
+  ctx.fillRect(fw * 27, floorY - fw * 3, fw * 2, fw * 2);
+  ctx.fillStyle = "#308048";
+  ctx.fillRect(fw * 27 + 2, floorY - fw * 4, fw, fw);
+  ctx.fillStyle = "#6b4a30";
+  ctx.fillRect(fw * 27, floorY - fw, fw * 2, fw);
+
+  // Window/poster on wall
+  ctx.fillStyle = "#2a2a4a";
+  ctx.fillRect(fw * 12, height * 0.08, fw * 5, fw * 4);
+  ctx.fillStyle = "#4a6a9a";
+  ctx.fillRect(fw * 13, height * 0.08 + fw * 0.5, fw * 3, fw * 3);
+
+  return canvas;
+}
+
 // Cache room backgrounds
 const roomBgCache = {};
 function getRoomBg(roomConfig) {
@@ -177,6 +269,12 @@ function getRoomBg(roomConfig) {
     roomBgCache[roomConfig.id] = drawRoomBackground(roomConfig, 240, 160);
   }
   return roomBgCache[roomConfig.id];
+}
+
+let officeBgCache = null;
+function getOfficeBg() {
+  if (!officeBgCache) officeBgCache = drawOfficeBackground(240, 160);
+  return officeBgCache;
 }
 
 export default function Apartment({ room, playerId, roomData, onBack }) {
@@ -351,12 +449,15 @@ export default function Apartment({ room, playerId, roomData, onBack }) {
           <button className="btn btn-ghost back-btn" onClick={() => setView("map")}>←</button>
           <h2>💼 {owner?.name}'s Office</h2>
         </div>
-        <div className="office-scene">
-          <PixelChar config={owner?.character || DEFAULT_CHAR} state="idle" size={4} />
-          <div className="office-desk-items">
-            {items.map((id) => { const it = OFFICE_ITEMS.find((i) => i.id === id); return it ? <span key={id} className="office-item">{it.emoji}</span> : null; })}
+        <div className="room-view" style={{ "--room-color": "#6366f1" }}>
+          <OfficeCanvas />
+          <div className="room-char" style={{ bottom: 16, left: "40%" }}>
+            <PixelChar config={owner?.character || DEFAULT_CHAR} state="idle" size={3} />
           </div>
-          {!isMyOffice && <p className="office-status">{theirOnline ? `${them?.name} is here ✨` : `${them?.name} is away`}</p>}
+          <div className="office-desk-overlay">
+            {items.map((id) => { const it = OFFICE_ITEMS.find((i) => i.id === id); return it ? <span key={id} className="office-item-overlay">{it.emoji}</span> : null; })}
+          </div>
+          {!isMyOffice && <p className="office-status-overlay">{theirOnline ? `${them?.name} is here ✨` : `${them?.name} is away`}</p>}
         </div>
         {isMyOffice && (
           <>
@@ -440,6 +541,20 @@ function RoomCanvas({ roomConfig }) {
     canvas.height = bg.height;
     canvas.getContext("2d").drawImage(bg, 0, 0);
   }, [roomConfig.id]);
+  return <canvas ref={canvasRef} className="room-bg-canvas" />;
+}
+
+// Office background canvas
+function OfficeCanvas() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const bg = getOfficeBg();
+    canvas.width = bg.width;
+    canvas.height = bg.height;
+    canvas.getContext("2d").drawImage(bg, 0, 0);
+  }, []);
   return <canvas ref={canvasRef} className="room-bg-canvas" />;
 }
 
