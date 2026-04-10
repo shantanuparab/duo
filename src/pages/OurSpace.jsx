@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { updateDoc, doc, getFirestore, serverTimestamp, setDoc, onSnapshot, collection, getDocs } from "firebase/firestore";
 import PixelPet, { PET_TYPES, PET_NAMES_DEFAULT, PET_UNLOCK } from "../components/PixelPet";
 import { getUnlockedFeatures } from "../data/milestones";
+import { getLevelNumber } from "../data/levels";
 
 // --- Gifts with level gating ---
 const GIFTS = [
@@ -65,14 +66,8 @@ function getBouquetHealth(bouquet) {
   return health;
 }
 
-// Level calc (same as Hub)
-const LEVELS = [0, 50, 150, 300, 500, 800, 1200, 1700, 2400, 3200, 99999];
-function getLevel(xp) {
-  for (let i = 0; i < LEVELS.length - 1; i++) {
-    if (xp < LEVELS[i + 1]) return i + 1;
-  }
-  return LEVELS.length;
-}
+// Level calc (shared from data/levels.js)
+const getLevel = getLevelNumber;
 
 export default function OurSpace({ room, playerId, roomData, onBack }) {
   const [tab, setTab] = useState("pet");

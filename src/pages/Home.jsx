@@ -15,6 +15,7 @@ export default function Home({ onJoin, inviteCode }) {
   const [createdCode, setCreatedCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState("");
   const [char, setChar] = useState({ ...DEFAULT_CHAR });
 
   function updateChar(key, val) { setChar((c) => ({ ...c, [key]: val })); }
@@ -98,10 +99,14 @@ export default function Home({ onJoin, inviteCode }) {
     const link = getInviteLink();
     const msg = `Hey ${partnerName}! I made something for us — it's a little app called vibe check ✨\n\nJust tap this link:\n${link}`;
     navigator.clipboard?.writeText(msg);
+    setCopied("invite");
+    setTimeout(() => setCopied(""), 2000);
   }
 
   function copyLink() {
     navigator.clipboard?.writeText(getInviteLink());
+    setCopied("link");
+    setTimeout(() => setCopied(""), 2000);
   }
 
   // ========== INVITE LOADING ==========
@@ -291,8 +296,8 @@ export default function Home({ onJoin, inviteCode }) {
           </p>
         </div>
         <div className="home-form">
-          <button className="btn btn-primary" onClick={copyInvite}>Copy Invite Message</button>
-          <button className="btn btn-secondary" onClick={copyLink}>Copy Link Only</button>
+          <button className="btn btn-primary" onClick={copyInvite}>{copied === "invite" ? "Copied! ✓" : "Copy Invite Message"}</button>
+          <button className="btn btn-secondary" onClick={copyLink}>{copied === "link" ? "Copied! ✓" : "Copy Link Only"}</button>
           <button className="btn btn-secondary" onClick={handleJoinFromInvite}>Enter Room</button>
         </div>
       </div>
@@ -348,7 +353,7 @@ export default function Home({ onJoin, inviteCode }) {
           <span className="char-label">Hair color</span>
           <div className="char-colors">
             {HAIR_COLORS.map((c) => (
-              <button key={c} className={`color-dot ${char.hairColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("hairColor", c)} />
+              <button key={c} className={`color-dot ${char.hairColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("hairColor", c)} aria-label={`Hair color ${c}`} />
             ))}
           </div>
         </div>
@@ -356,7 +361,7 @@ export default function Home({ onJoin, inviteCode }) {
           <span className="char-label">Skin</span>
           <div className="char-colors">
             {SKIN_COLORS.map((c) => (
-              <button key={c} className={`color-dot ${char.skinColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("skinColor", c)} />
+              <button key={c} className={`color-dot ${char.skinColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("skinColor", c)} aria-label={`Skin color ${c}`} />
             ))}
           </div>
         </div>
@@ -364,7 +369,7 @@ export default function Home({ onJoin, inviteCode }) {
           <span className="char-label">Outfit</span>
           <div className="char-colors">
             {OUTFIT_COLORS.map((c) => (
-              <button key={c} className={`color-dot ${char.outfitColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("outfitColor", c)} />
+              <button key={c} className={`color-dot ${char.outfitColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("outfitColor", c)} aria-label={`Outfit color ${c}`} />
             ))}
           </div>
         </div>
@@ -372,7 +377,7 @@ export default function Home({ onJoin, inviteCode }) {
           <span className="char-label">Shoes</span>
           <div className="char-colors">
             {SHOE_COLORS.map((c) => (
-              <button key={c} className={`color-dot ${char.shoeColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("shoeColor", c)} />
+              <button key={c} className={`color-dot ${char.shoeColor === c ? "active" : ""}`} style={{ background: c }} onClick={() => updateChar("shoeColor", c)} aria-label={`Shoe color ${c}`} />
             ))}
           </div>
         </div>

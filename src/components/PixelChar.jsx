@@ -1,153 +1,186 @@
 import { useRef, useEffect } from "react";
 
-// Pixel character on a 12x16 grid
-// 0=transparent, 1=skin, 2=hair, 3=outfit, 4=eye, 5=mouth, 6=shoe, 7=blush, 8=accessory(bow/tie)
+// Pokemon-style pixel character on a 16x24 grid
+// 0=transparent, 1=skin, 2=hair, 3=outfit, 4=eye, 5=mouth, 6=shoe, 7=blush
 
+// ---- HAIR STYLES (rows 0-3, overlaid on head; long styles extend into body rows) ----
 const HAIR_STYLES = {
-  short: [
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-  ],
-  long: [
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-  ],
-  spiky: [
-    [0,0,2,0,2,0,0,2,0,2,0,0],
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-  ],
-  curly: [
-    [0,0,2,2,0,2,2,0,2,2,0,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-  ],
-  bob: [
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-  ],
-  ponytail: [
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,2,0],
-    [0,0,2,2,2,2,2,2,2,2,2,2],
-  ],
-  buzzcut: [
-    [0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,2,2,2,2,2,2,0,0,0],
-    [0,0,2,2,2,2,2,2,2,2,0,0],
-  ],
-  pigtails: [
-    [0,2,0,2,2,2,2,2,2,0,2,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-    [0,2,2,2,2,2,2,2,2,2,2,0],
-  ],
+  short: {
+    rows: [
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+    ],
+    sideRows: {},
+  },
+  long: {
+    rows: [
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+    ],
+    // Hair curtains that overlay body rows 4-12 (shoulder-length)
+    sideRows: {
+      4:  [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      5:  [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      6:  [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      7:  [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      8:  [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      9:  [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      10: [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      11: [0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0],
+      12: [0,0,0,0,2,0,0,0,0,0,0,2,0,0,0,0],
+    },
+  },
+  spiky: {
+    rows: [
+      [0,0,0,2,0,2,0,0,2,0,2,0,0,2,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+    ],
+    sideRows: {},
+  },
+  curly: {
+    rows: [
+      [0,0,0,2,2,0,2,2,0,2,2,0,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+      [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+      [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+    ],
+    sideRows: {
+      4: [0,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0],
+      5: [0,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0],
+      6: [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+    },
+  },
+  bob: {
+    rows: [
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,0,0],
+    ],
+    sideRows: {
+      4: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      5: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      6: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      7: [0,0,2,2,0,0,0,0,0,0,0,0,2,2,0,0],
+      8: [0,0,0,2,0,0,0,0,0,0,0,0,2,0,0,0],
+    },
+  },
+  ponytail: {
+    rows: [
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+      [0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+    ],
+    sideRows: {
+      4:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0],
+      5:  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0],
+      6:  [0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      7:  [0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      8:  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0],
+      9:  [0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0],
+      10: [0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0],
+    },
+  },
+  buzzcut: {
+    rows: [
+      [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+      [0,0,0,2,2,2,2,2,2,2,2,2,2,0,0,0],
+    ],
+    sideRows: {},
+  },
+  pigtails: {
+    rows: [
+      [0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0],
+      [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+      [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+      [0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0],
+    ],
+    sideRows: {
+      4: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      5: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      6: [0,2,2,0,0,0,0,0,0,0,0,0,0,2,2,0],
+      7: [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+      8: [0,0,2,0,0,0,0,0,0,0,0,0,0,2,0,0],
+    },
+  },
 };
 
-// ---- MALE body frames ----
-const M_IDLE = [
-  [0,0,0,1,1,1,1,1,1,0,0,0], // face
-  [0,0,0,1,4,1,1,4,1,0,0,0], // eyes
-  [0,0,0,1,1,1,1,1,1,0,0,0], // nose
-  [0,0,0,1,1,5,5,1,1,0,0,0], // mouth
-  [0,0,0,0,1,1,1,1,0,0,0,0], // neck
-  [0,0,3,3,3,3,3,3,3,3,0,0], // shoulders (broader)
-  [0,0,1,3,3,3,3,3,3,1,0,0], // arms
-  [0,0,0,3,3,3,3,3,3,0,0,0], // torso
-  [0,0,0,3,3,3,3,3,3,0,0,0], // waist
-  [0,0,0,3,3,0,0,3,3,0,0,0], // legs
-  [0,0,0,1,1,0,0,1,1,0,0,0], // ankles
-  [0,0,0,6,6,0,0,6,6,0,0,0], // shoes
-  [0,0,6,6,6,0,0,6,6,6,0,0], // shoes bottom
+// ---- MALE body (rows 4-23, appended after hair rows 0-3) ----
+const M_BODY = [
+  // row 4: top of head (forehead)
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  // row 5: eyes
+  [0,0,0,1,1,4,4,1,1,4,4,1,1,0,0,0],
+  // row 6: cheeks
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  // row 7: nose/mouth
+  [0,0,0,1,1,1,5,5,1,1,1,1,1,0,0,0],
+  // row 8: chin
+  [0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+  // row 9: neck
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  // row 10: shoulders
+  [0,0,0,3,3,3,3,3,3,3,3,3,3,0,0,0],
+  // row 11: upper arms + torso
+  [0,0,1,1,3,3,3,3,3,3,3,3,1,1,0,0],
+  // row 12: arms + torso
+  [0,0,1,1,3,3,3,3,3,3,3,3,1,1,0,0],
+  // row 13: lower torso
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  // row 14: waist
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  // row 15: hips
+  [0,0,0,0,3,3,3,0,0,3,3,3,0,0,0,0],
+  // row 16: upper legs
+  [0,0,0,0,3,3,3,0,0,3,3,3,0,0,0,0],
+  // row 17: lower legs
+  [0,0,0,0,1,1,1,0,0,1,1,1,0,0,0,0],
+  // row 18: ankles
+  [0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0],
+  // row 19: shoes top
+  [0,0,0,6,6,6,0,0,0,0,6,6,6,0,0,0],
+  // row 20: shoes mid
+  [0,0,0,6,6,6,6,0,0,6,6,6,6,0,0,0],
+  // row 21: shoes bottom
+  [0,0,0,6,6,6,6,0,0,6,6,6,6,0,0,0],
+  // rows 22-23: padding
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ];
 
-const M_WALK = [
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,4,1,1,4,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,1,5,5,1,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,3,3,3,3,3,3,3,3,0,0],
-  [0,0,1,3,3,3,3,3,3,1,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,0,3,3,3,3,0,0,0,0],
-  [0,0,0,1,1,0,0,0,1,1,0,0],
-  [0,0,6,6,0,0,0,0,0,6,6,0],
-  [0,0,6,6,0,0,0,0,0,6,6,0],
+// ---- FEMALE body ----
+const F_BODY = [
+  [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,1,1,4,4,1,1,4,4,1,1,0,0,0],
+  [0,0,0,7,1,1,1,1,1,1,1,1,7,0,0,0],
+  [0,0,0,1,1,1,5,5,1,1,1,1,1,0,0,0],
+  [0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0],
+  [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  [0,0,1,1,3,3,3,3,3,3,3,3,1,1,0,0],
+  [0,0,1,1,3,3,3,3,3,3,3,3,1,1,0,0],
+  [0,0,0,0,3,3,3,3,3,3,3,3,0,0,0,0],
+  // skirt flare
+  [0,0,0,3,3,3,3,3,3,3,3,3,3,0,0,0],
+  [0,0,3,3,3,3,3,0,0,3,3,3,3,3,0,0],
+  [0,0,3,3,3,3,0,0,0,0,3,3,3,3,0,0],
+  [0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0],
+  [0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0],
+  [0,0,0,6,6,6,0,0,0,0,6,6,6,0,0,0],
+  [0,0,0,6,6,6,0,0,0,0,6,6,6,0,0,0],
+  [0,0,0,6,6,6,0,0,0,0,6,6,6,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 ];
-
-const M_HAPPY = [
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,4,1,1,4,1,0,0,0],
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,5,5,5,5,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [1,0,3,3,3,3,3,3,3,3,0,1],
-  [0,1,0,3,3,3,3,3,3,0,1,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,3,3,0,0,3,3,0,0,0],
-  [0,0,0,1,1,0,0,1,1,0,0,0],
-  [0,0,0,6,6,0,0,6,6,0,0,0],
-  [0,0,6,6,6,0,0,6,6,6,0,0],
-];
-
-// ---- FEMALE body frames ----
-const F_IDLE = [
-  [0,0,0,1,1,1,1,1,1,0,0,0], // face
-  [0,0,0,1,4,1,1,4,1,0,0,0], // eyes (with lashes: slightly different)
-  [0,0,0,7,1,1,1,1,7,0,0,0], // cheeks/blush
-  [0,0,0,1,1,5,5,1,1,0,0,0], // mouth
-  [0,0,0,0,1,1,1,1,0,0,0,0], // neck
-  [0,0,0,3,3,3,3,3,3,0,0,0], // shoulders (narrower)
-  [0,0,1,3,3,3,3,3,3,1,0,0], // arms
-  [0,0,0,3,3,3,3,3,3,0,0,0], // torso
-  [0,0,0,0,3,3,3,3,0,0,0,0], // waist (narrower)
-  [0,0,0,3,3,0,0,3,3,0,0,0], // skirt/legs
-  [0,0,0,1,1,0,0,1,1,0,0,0], // ankles
-  [0,0,0,6,6,0,0,6,6,0,0,0], // shoes
-  [0,0,0,6,6,0,0,6,6,0,0,0], // shoes bottom
-];
-
-const F_WALK = [
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,4,1,1,4,1,0,0,0],
-  [0,0,0,7,1,1,1,1,7,0,0,0],
-  [0,0,0,1,1,5,5,1,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,1,3,3,3,3,3,3,1,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,0,3,3,3,3,0,0,0,0],
-  [0,0,0,0,3,3,3,3,0,0,0,0],
-  [0,0,0,1,1,0,0,0,1,1,0,0],
-  [0,0,0,6,6,0,0,0,6,6,0,0],
-  [0,0,0,6,6,0,0,0,6,6,0,0],
-];
-
-const F_HAPPY = [
-  [0,0,0,1,1,1,1,1,1,0,0,0],
-  [0,0,0,1,4,1,1,4,1,0,0,0],
-  [0,0,0,7,1,1,1,1,7,0,0,0],
-  [0,0,0,1,5,5,5,5,1,0,0,0],
-  [0,0,0,0,1,1,1,1,0,0,0,0],
-  [0,1,0,3,3,3,3,3,3,0,1,0],
-  [0,0,1,3,3,3,3,3,3,1,0,0],
-  [0,0,0,3,3,3,3,3,3,0,0,0],
-  [0,0,0,0,3,3,3,3,0,0,0,0],
-  [0,0,0,3,3,0,0,3,3,0,0,0],
-  [0,0,0,1,1,0,0,1,1,0,0,0],
-  [0,0,0,6,6,0,0,6,6,0,0,0],
-  [0,0,0,6,6,0,0,6,6,0,0,0],
-];
-
-const BODIES = {
-  male:   { idle: M_IDLE, walk: M_WALK, happy: M_HAPPY },
-  female: { idle: F_IDLE, walk: F_WALK, happy: F_HAPPY },
-};
 
 export const BODY_TYPES = ["male", "female"];
 export const SKIN_COLORS = ["#fde0b5", "#f5c088", "#d4956a", "#a0724a", "#6b4a30", "#f8d5c2"];
@@ -165,10 +198,8 @@ export const DEFAULT_CHAR = {
   shoeColor: "#1f1f1f",
 };
 
-function buildFrame(hairStyle, bodyFrame) {
-  const hair = HAIR_STYLES[hairStyle] || HAIR_STYLES.short;
-  return [...hair, ...bodyFrame];
-}
+const W = 16;
+const H = 24;
 
 function getColorMap(config) {
   return {
@@ -182,69 +213,112 @@ function getColorMap(config) {
   };
 }
 
+function darkenColor(hex, amount = 0.3) {
+  const c = hex.replace("#", "");
+  const r = Math.max(0, Math.round(parseInt(c.substring(0, 2), 16) * (1 - amount)));
+  const g = Math.max(0, Math.round(parseInt(c.substring(2, 4), 16) * (1 - amount)));
+  const b = Math.max(0, Math.round(parseInt(c.substring(4, 6), 16) * (1 - amount)));
+  return `rgb(${r},${g},${b})`;
+}
+
+function buildFrame(config) {
+  const hair = HAIR_STYLES[config.hairStyle] || HAIR_STYLES.short;
+  const body = config.body === "female" ? F_BODY : M_BODY;
+
+  // Start with hair rows (0-3), then body rows (4-23)
+  const frame = [...hair.rows.map(r => [...r]), ...body.map(r => [...r])];
+
+  // Overlay hair side rows (for long, bob, ponytail, pigtails, curly styles)
+  if (hair.sideRows) {
+    for (const [rowStr, sideRow] of Object.entries(hair.sideRows)) {
+      const row = parseInt(rowStr);
+      if (row < frame.length) {
+        for (let x = 0; x < W; x++) {
+          if (sideRow[x] !== 0) frame[row][x] = sideRow[x];
+        }
+      }
+    }
+  }
+  return frame;
+}
+
+function renderToOffscreen(config, size) {
+  const frame = buildFrame(config);
+  const colorMap = getColorMap(config);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W * size;
+  canvas.height = H * size;
+  const ctx = canvas.getContext("2d");
+
+  // Pass 1: draw body, then hair overwrites where present
+  const resolvedColors = [];
+  for (let y = 0; y < H; y++) {
+    resolvedColors[y] = [];
+    for (let x = 0; x < W; x++) {
+      const val = frame[y]?.[x];
+      if (!val) { resolvedColors[y][x] = null; continue; }
+      const color = colorMap[val] || "#ff00ff";
+      resolvedColors[y][x] = color;
+      ctx.fillStyle = color;
+      ctx.fillRect(x * size, y * size, size, size);
+    }
+  }
+
+  // Pass 2: outlines (1 grid cell wide, 30% darker)
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (resolvedColors[y][x]) continue; // only draw outline on transparent cells
+      // Check 4 neighbors for non-transparent cells
+      const neighbors = [
+        [y - 1, x], [y + 1, x], [y, x - 1], [y, x + 1],
+      ];
+      let outlineColor = null;
+      for (const [ny, nx] of neighbors) {
+        if (ny >= 0 && ny < H && nx >= 0 && nx < W && resolvedColors[ny]?.[nx]) {
+          outlineColor = resolvedColors[ny][nx];
+          break;
+        }
+      }
+      if (outlineColor && !outlineColor.includes("88")) { // skip semi-transparent blush
+        ctx.fillStyle = darkenColor(outlineColor.startsWith("rgb") ? outlineColor : outlineColor.slice(0, 7));
+        ctx.fillRect(x * size, y * size, size, size);
+      }
+    }
+  }
+
+  return canvas;
+}
+
 export default function PixelChar({ config = DEFAULT_CHAR, state = "idle", size = 4, className = "" }) {
   const canvasRef = useRef(null);
-  const animRef = useRef(null);
+  const cacheRef = useRef(null);
+  const cacheKeyRef = useRef("");
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    const colorMap = getColorMap(config);
-    const bodyType = BODIES[config.body] || BODIES.male;
 
-    const W = 12;
-    const stateMap = {
-      idle:     [buildFrame(config.hairStyle, bodyType.idle)],
-      walk:     [buildFrame(config.hairStyle, bodyType.idle), buildFrame(config.hairStyle, bodyType.walk)],
-      happy:    [buildFrame(config.hairStyle, bodyType.happy), buildFrame(config.hairStyle, bodyType.idle)],
-      thinking: [buildFrame(config.hairStyle, bodyType.idle)],
-    };
-
-    const activeFrames = stateMap[state] || stateMap.idle;
     canvas.width = W * size;
-    canvas.height = activeFrames[0].length * size;
+    canvas.height = H * size;
 
-    let tick = 0;
-    function draw() {
-      const frameIdx = Math.floor(tick / 30) % activeFrames.length;
-      const frame = activeFrames[frameIdx];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const bounceY = (state === "walk" || state === "happy") && frameIdx === 1 ? -size : 0;
-
-      for (let y = 0; y < frame.length; y++) {
-        for (let x = 0; x < W; x++) {
-          const val = frame[y][x];
-          if (val === 0) continue;
-          ctx.fillStyle = colorMap[val] || "#ff00ff";
-          ctx.fillRect(x * size, y * size + bounceY, size, size);
-        }
-      }
-
-      // Thinking bubble
-      if (state === "thinking") {
-        ctx.fillStyle = "#ffffff";
-        const bx = W * size - 3 * size;
-        ctx.fillRect(bx, 0, size * 2, size * 2);
-        ctx.fillRect(bx - size, size * 3, size, size);
-      }
-
-      tick++;
-      animRef.current = requestAnimationFrame(draw);
+    // Cache key based on config + size
+    const key = JSON.stringify(config) + size;
+    if (cacheKeyRef.current !== key) {
+      cacheRef.current = renderToOffscreen(config, size);
+      cacheKeyRef.current = key;
     }
 
-    draw();
-    return () => cancelAnimationFrame(animRef.current);
-  }, [config, state, size]);
-
-  const H = (HAIR_STYLES[config.hairStyle]?.length || 3) + (BODIES[config.body]?.idle || M_IDLE).length;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(cacheRef.current, 0, 0);
+  }, [config, size, state]);
 
   return (
     <canvas
       ref={canvasRef}
       className={`pixel-char ${className}`}
-      style={{ width: 12 * size, height: H * size, imageRendering: "pixelated" }}
+      style={{ width: W * size, height: H * size, imageRendering: "pixelated" }}
     />
   );
 }

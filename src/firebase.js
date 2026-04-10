@@ -154,12 +154,20 @@ export async function clearCurrentCard(code, cardId, xpGain) {
   const data = snap.data();
   const played = data.playedCards || [];
   const today = new Date().toISOString().slice(0, 10);
-  const wasToday = data.lastPlayedDate === today;
+  const lastDate = data.lastPlayedDate;
+  const wasToday = lastDate === today;
+  // Check if last played was yesterday
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const wasYesterday = lastDate === yesterday;
+  let newStreak;
+  if (wasToday) newStreak = data.streak || 1;
+  else if (wasYesterday) newStreak = (data.streak || 0) + 1;
+  else newStreak = 1; // streak broken — reset
   await updateDoc(roomRef, {
     currentCard: null,
     playedCards: [...played, cardId],
     xp: (data.xp || 0) + xpGain,
-    streak: wasToday ? (data.streak || 0) : (data.streak || 0) + 1,
+    streak: newStreak,
     lastPlayedDate: today,
   });
 }

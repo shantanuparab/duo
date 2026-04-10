@@ -14,14 +14,7 @@ import CreateCard from "./CreateCard";
 import OurSpace from "./OurSpace";
 import Apartment from "./Apartment";
 import MiniGames from "./MiniGames";
-
-const LEVELS = [0, 50, 150, 300, 500, 800, 1200, 1700, 2400, 3200, 99999];
-function getLevel(xp) {
-  for (let i = 0; i < LEVELS.length - 1; i++) {
-    if (xp < LEVELS[i + 1]) return { level: i + 1, current: xp - LEVELS[i], needed: LEVELS[i + 1] - LEVELS[i] };
-  }
-  return { level: LEVELS.length, current: 0, needed: 1 };
-}
+import { getLevel } from "../data/levels";
 
 // Heart evolves with level — each stage has a relationship phase
 const HEART_STAGES = [
@@ -372,7 +365,7 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
             <div className="hub-char-side them" onClick={() => { if (!pokeCooldown) handlePoke(); }}>
               <div className="hub-char-inner">
                 <div className="char-with-status">
-                  <PixelChar config={them?.character || DEFAULT_CHAR} state={partnerIsOnline ? "idle" : "idle"} size={4} />
+                  <PixelChar config={them?.character || DEFAULT_CHAR} state={partnerIsOnline ? "idle" : "walk"} size={4} />
                   <span className={`online-dot ${partnerIsOnline ? "on" : "off"}`} />
                 </div>
                 <span className="hub-char-name">
