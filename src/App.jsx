@@ -5,10 +5,40 @@ import { subscribeRoom } from "./firebase";
 import MoodParticles from "./components/MoodParticles";
 import { applyMoodTheme } from "./components/MoodSlider";
 
+const APP_VERSION = "2.0";
+const UPDATE_NOTES = [
+  "Pokemon-style pixel art characters (bigger, outlined, more detail)",
+  "All 8 pets redesigned as Pokemon-style creatures",
+  "Pixel art room backgrounds in the apartment",
+  "Office rooms now have pixel art too",
+  "Bug fixes: streak tracking, copy buttons, accessibility",
+];
+
 // Extract ?code=XYZ from URL
 function getCodeFromURL() {
   const params = new URLSearchParams(window.location.search);
   return params.get("code")?.toUpperCase() || null;
+}
+
+function WhatsNew({ onDismiss }) {
+  return (
+    <div className="modal-overlay fade-in" onClick={onDismiss}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360 }}>
+        <div className="modal-emoji">✨</div>
+        <h3>What's New</h3>
+        <div style={{ textAlign: "left", fontSize: ".85rem", color: "var(--text)", lineHeight: 1.7 }}>
+          {UPDATE_NOTES.map((note, i) => (
+            <p key={i} style={{ marginBottom: ".3rem" }}>
+              <span style={{ color: "var(--accent)", marginRight: ".4rem" }}>•</span>{note}
+            </p>
+          ))}
+        </div>
+        <button className="btn btn-primary" onClick={onDismiss} style={{ marginTop: "1rem" }}>
+          Let's go!
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
@@ -23,6 +53,10 @@ export default function App() {
   const [room, setRoom] = useState(shouldShowInvite ? null : storedRoom);
   const [playerId, setPlayerId] = useState(shouldShowInvite ? null : storedPid);
   const [roomData, setRoomData] = useState(null);
+  const [showWhatsNew, setShowWhatsNew] = useState(() => {
+    const seen = localStorage.getItem("vc_version");
+    return seen !== APP_VERSION;
+  });
 
   useEffect(() => {
     if (!room) return;
@@ -67,12 +101,23 @@ export default function App() {
     setRoomData(null);
   }
 
+  function dismissWhatsNew() {
+    localStorage.setItem("vc_version", APP_VERSION);
+    setShowWhatsNew(false);
+  }
+
   if (!room || !playerId) {
-    return <Home onJoin={handleJoin} inviteCode={inviteCode} />;
+    return (
+      <>
+        {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
+        <Home onJoin={handleJoin} inviteCode={inviteCode} />
+      </>
+    );
   }
 
   return (
     <>
+      {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
       <MoodParticles moodId={partnerMoodId} />
       <Hub
         room={room}
