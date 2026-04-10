@@ -543,7 +543,18 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
 
       {/* Footer */}
       <div className="hub-footer">
-        <button className="btn btn-ghost" onClick={() => setShowEndConfirm(true)}>End It 💔</button>
+        {(() => {
+          // "End It" fades in based on partner inactivity
+          // Hidden if active within 3 days. Fades from 0→1 over days 3-7.
+          const lastSeen = partnerOnlineTs?.toDate?.()?.getTime?.() || 0;
+          const daysSince = (Date.now() - lastSeen) / 86400000;
+          if (daysSince < 3) return null;
+          const opacity = Math.min(1, (daysSince - 3) / 4); // 0 at day 3, 1 at day 7
+          return (
+            <button className="btn btn-ghost" onClick={() => setShowEndConfirm(true)}
+              style={{ opacity, transition: "opacity .5s" }}>End It 💔</button>
+          );
+        })()}
         <button className="btn btn-ghost" onClick={onLeave}>Leave Room</button>
       </div>
 
