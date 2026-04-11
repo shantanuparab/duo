@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { drawCard, setOnline, endRoom, subscribeCustomCards, subscribeFavorites, setMood, sendPoke } from "../firebase";
+import { collection, getFirestore, onSnapshot, query, orderBy } from "firebase/firestore";
+import { PhotoImg } from "../components/PhotoViewer";
 import { decks, getRandomCard } from "../data/cards";
 import PixelChar, { DEFAULT_CHAR } from "../components/PixelChar";
 import PixelPet from "../components/PixelPet";
@@ -47,6 +49,8 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   const [pokeCooldown, setPokeCooldown] = useState(false);
   const [onboarded, setOnboarded] = useState(false);
   const [dismissedCard, setDismissedCard] = useState(null); // card ID we chose to leave
+  const [unreadNotes, setUnreadNotes] = useState([]);
+  const [showUnreadNotes, setShowUnreadNotes] = useState(false);
 
   const p1 = roomData?.player1;
   const p2 = roomData?.player2;
@@ -147,6 +151,32 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
     if (!room) return;
     return subscribeFavorites(room, setFavorites);
   }, [room]);
+
+  // Subscribe to unread notes from partner
+  useEffect(() => {
+    if (!room || !me?.name) return;
+    const db = getFirestore();
+    return onSnapshot(collection(db, "rooms", room, "notes"), (snap) => {
+      const lastSeen = parseInt(localStorage.getItem(`vc_notes_seen_${room}`) || "0");
+      const unread = [];
+      snap.forEach((d) => {
+        const n = { id: d.id, ...d.data() };
+        const noteTime = n.at?.toMillis?.() || parseInt(d.id) || 0;
+        if (n.from !== me.name && noteTime > lastSeen) unread.push(n);
+      });
+      unread.sort((a, b) => (a.at?.toMillis?.() || 0) - (b.at?.toMillis?.() || 0));
+      if (unread.length > 0) {
+        setUnreadNotes(unread);
+        setShowUnreadNotes(true);
+      }
+    });
+  }, [room, me?.name]);
+
+  function dismissUnreadNotes() {
+    localStorage.setItem(`vc_notes_seen_${room}`, Date.now().toString());
+    setShowUnreadNotes(false);
+    setUnreadNotes([]);
+  }
 
   // Detect ended
   useEffect(() => {
@@ -269,6 +299,31 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
         <button className="btn btn-ghost" onClick={() => setShowMoodPicker(false)} style={{ marginTop: ".5rem" }}>
           Skip
         </button>
+      </div>
+    );
+  }
+
+  // Unread notes popup
+  if (showUnreadNotes && unreadNotes.length > 0) {
+    return (
+      <div className="page">
+        <div className="unread-notes-popup fade-in">
+          <div className="unread-notes-header">
+            <span className="unread-notes-emoji">📝</span>
+            <h2>{them?.name} left you {unreadNotes.length === 1 ? "a note" : `${unreadNotes.length} notes`}</h2>
+          </div>
+          <div className="unread-notes-list">
+            {unreadNotes.map((n) => (
+              <div key={n.id} className="unread-note-card fade-in">
+                {n.text && <p className="unread-note-text">{n.text}</p>}
+                {n.photo && <PhotoImg src={n.photo} className="unread-note-photo" />}
+              </div>
+            ))}
+          </div>
+          <button className="btn btn-primary" onClick={dismissUnreadNotes} style={{ marginTop: ".75rem" }}>
+            Got it
+          </button>
+        </div>
       </div>
     );
   }

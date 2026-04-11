@@ -679,6 +679,28 @@ html, body {
    Mood Slider
    ============================================ */
 
+/* Unread notes popup */
+.unread-notes-popup {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; width: 100%; text-align: center; gap: .5rem;
+}
+.unread-notes-header { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+.unread-notes-emoji { font-size: 2.5rem; }
+.unread-notes-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text-bright); }
+.unread-notes-list {
+  width: 100%; display: flex; flex-direction: column; gap: .5rem;
+  max-height: 50dvh; overflow-y: auto; padding: .5rem 0;
+}
+.unread-note-card {
+  background: var(--bg-card); border: 1px solid rgba(236,72,153,.15);
+  border-radius: var(--radius-sm); padding: .85rem; text-align: left;
+}
+.unread-note-text { color: var(--text-bright); font-size: .95rem; line-height: 1.5; }
+.unread-note-photo {
+  width: 100%; max-height: 200px; object-fit: cover;
+  border-radius: var(--radius-sm); margin-top: .4rem;
+}
+
 .mood-slider { width: 100%; text-align: center; padding-top: 3rem; }
 .mood-title { font-size: 1.4rem; font-weight: 800; color: var(--text-bright); margin-bottom: .3rem; }
 .mood-sub { font-size: .85rem; color: var(--text-dim); margin-bottom: 1.5rem; }
