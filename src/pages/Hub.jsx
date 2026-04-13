@@ -15,6 +15,7 @@ import Onboarding from "./Onboarding";
 import CreateCard from "./CreateCard";
 import OurSpace from "./OurSpace";
 import Apartment from "./Apartment";
+import AnswerHistory from "./AnswerHistory";
 import MiniGames from "./MiniGames";
 import { getLevel } from "../data/levels";
 
@@ -336,6 +337,7 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   if (view === "ourspace") return <OurSpace room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "apartment") return <Apartment room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "games") return <MiniGames room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
+  if (view === "answers") return <AnswerHistory room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
 
   // Milestones
   const unlockedDeckIds = getUnlockedDecks(lvl.level);
@@ -566,6 +568,11 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
         </button>
         <button className="btn btn-secondary" onClick={() => setView("dateboard")}>
           📌 Date Board
+        </button>
+      </div>
+      <div className="hub-links">
+        <button className="btn btn-secondary" onClick={() => setView("answers")}>
+          💬 Our Answers
         </button>
       </div>
       <div className="hub-links">
