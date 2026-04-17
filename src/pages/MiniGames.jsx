@@ -312,14 +312,24 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
     });
   }, [room]);
 
-  // Timer
+  // Timer — when time's up, end the game properly (clears Firebase)
+  const timerEndedRef = useRef(false);
   useEffect(() => {
     if (screen !== "playing" || !gameState) return;
+    timerEndedRef.current = false;
     const end = gameState.endsAt?.toDate?.()?.getTime?.() || (Date.now() + 120000);
     function tick() {
       const left = Math.max(0, Math.floor((end - Date.now()) / 1000));
       setTimer(left);
-      if (left <= 0) { setScreen("results"); clearInterval(timerRef.current); }
+      if (left <= 0 && !timerEndedRef.current) {
+        timerEndedRef.current = true;
+        clearInterval(timerRef.current);
+        // Determine winner from scores and end properly
+        const myScore = gameState[`score_${playerId}`] || gameState[`wyrscore_${playerId}`] || gameState[`taps_${playerId}`] || 0;
+        const theirScore = gameState[`score_${partnerId}`] || gameState[`wyrscore_${partnerId}`] || gameState[`taps_${partnerId}`] || 0;
+        const winner = myScore > theirScore ? playerId : theirScore > myScore ? partnerId : null;
+        endGame(winner);
+      }
     }
     tick();
     timerRef.current = setInterval(tick, 1000);
@@ -627,7 +637,7 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
         )}
 
         <button className="btn btn-primary" onClick={backToLobby}>Play Again</button>
-        <button className="btn btn-ghost" onClick={onBack}>Back to Hub</button>
+        <button className="btn btn-ghost" onClick={async () => { await setDoc(doc(db, "rooms", room, "game", "current"), { gameId: null }); onBack(); }}>Back to Hub</button>
       </div>
     </div>
   );
