@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { drawCard, setOnline, endRoom, subscribeCustomCards, subscribeFavorites, setMood, sendPoke } from "../firebase";
-import { collection, getFirestore, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, doc, getFirestore, onSnapshot, query, orderBy } from "firebase/firestore";
 import { getSavedRooms } from "../App";
 import { PhotoImg } from "../components/PhotoViewer";
 import { decks, getRandomCard } from "../data/cards";
@@ -164,6 +164,24 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
     if (!room) return;
     return subscribeFavorites(room, setFavorites);
   }, [room]);
+
+  // Subscribe to active game — auto-pull into games view
+  const [activeGame, setActiveGame] = useState(null);
+  useEffect(() => {
+    if (!room) return;
+    const db = getFirestore();
+    return onSnapshot(doc(db, "rooms", room, "game", "current"), (snap) => {
+      const data = snap.exists() ? snap.data() : null;
+      setActiveGame(data?.gameId ? data : null);
+    });
+  }, [room]);
+
+  // Auto-navigate to games when partner starts a game
+  useEffect(() => {
+    if (activeGame?.gameId && view === "hub") {
+      setView("games");
+    }
+  }, [activeGame?.gameId]);
 
   // Subscribe to unread notes from partner
   useEffect(() => {
@@ -361,6 +379,8 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
 
   // Is there a card waiting for partner? Lock card drawing
   const waitingForPartner = currentCard && dismissedCard === currentCard?.cardId;
+  const gameInProgress = !!activeGame?.gameId;
+  const cardsLocked = waitingForPartner || gameInProgress;
 
   // Build all decks including custom + favorites
   const customRemaining = customCards.filter((c) => !playedCards.includes(c.id)).length;
@@ -517,7 +537,7 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
       )}
 
       {/* Dice roll button */}
-      <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)} disabled={waitingForPartner}>
+      <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)} disabled={cardsLocked}>
         🎲 Roll for a Deck
       </button>
 
@@ -532,8 +552,8 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
             key={d.id}
             className={`deck-card ${d.locked ? "locked" : ""}`}
             style={{ borderColor: d.locked ? "rgba(255,255,255,.04)" : d.color + "44", background: d.locked ? "rgba(255,255,255,.02)" : d.color + "11" }}
-            onClick={() => !d.locked && !waitingForPartner && handleDrawCard(d.id)}
-            disabled={d.remaining === 0 || d.locked || waitingForPartner}
+            onClick={() => !d.locked && !cardsLocked && handleDrawCard(d.id)}
+            disabled={d.remaining === 0 || d.locked || cardsLocked}
           >
             {d.locked ? (
               <>
@@ -556,7 +576,7 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
           className="deck-card"
           style={{ borderColor: "#f472b644", background: "#f472b611" }}
           onClick={() => handleDrawCard("custom")}
-          disabled={customRemaining === 0}
+          disabled={customRemaining === 0 || cardsLocked}
         >
           <span className="deck-emoji">✏️</span>
           <span className="deck-name">Custom</span>
@@ -569,7 +589,7 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
             className="deck-card"
             style={{ borderColor: "#f43f5e44", background: "#f43f5e11" }}
             onClick={() => handleDrawCard("favorites")}
-            disabled={favRemaining === 0}
+            disabled={favRemaining === 0 || cardsLocked}
           >
             <span className="deck-emoji">❤️</span>
             <span className="deck-name">Favorites</span>

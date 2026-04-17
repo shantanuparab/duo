@@ -29,7 +29,7 @@ export const MOODS = [
 export const DEFAULT_MOOD = "excited";
 
 export function getMood(id) {
-  return MOODS.find((m) => m.id === id) || MOODS[6];
+  return MOODS.find((m) => m.id === id) || MOODS.find((m) => m.id === "moody") || MOODS[0];
 }
 
 export function applyMoodTheme(moodId) {

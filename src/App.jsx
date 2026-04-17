@@ -165,7 +165,7 @@ export default function App() {
 
   useEffect(() => {
     if (partnerMoodId) applyMoodTheme(partnerMoodId);
-  }, [partnerMoodId]);
+  }, [partnerMoodId, roomData]);
 
   function handleJoin(code, pid) {
     setRoom(code);

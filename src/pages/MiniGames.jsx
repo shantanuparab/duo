@@ -417,6 +417,11 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
         joinGame();
       }
     }
+    // Game was cleared (cancel or end) — return to lobby
+    if (gameState && !gameState.gameId && (screen === "waiting" || screen === "playing")) {
+      setScreen("lobby");
+      setGameId(null);
+    }
   }, [gameState?.gameId]);
 
   const [lastWinner, setLastWinner] = useState(null);
@@ -454,10 +459,11 @@ export default function MiniGames({ room, playerId, roomData, onBack }) {
     });
   }
 
-  function backToLobby() {
+  async function backToLobby() {
+    // Clear the game from Firebase so both players are released
+    await setDoc(doc(db, "rooms", room, "game", "current"), { gameId: null });
     setScreen("lobby");
     setGameId(null);
-    setGameState(null);
     setLastWinner(null);
   }
 
