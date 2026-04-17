@@ -97,18 +97,18 @@ function getCodeFromURL() {
 
 function WhatsNew({ onDismiss }) {
   return (
-    <div className="modal-overlay fade-in" onClick={onDismiss}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360 }}>
+    <div className="modal-overlay fade-in" onClick={onDismiss} style={{ overflowY: "auto", padding: "2rem 1rem" }}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360, maxHeight: "80dvh", display: "flex", flexDirection: "column" }}>
         <div className="modal-emoji">✨</div>
         <h3>What's New</h3>
-        <div style={{ textAlign: "left", fontSize: ".85rem", color: "var(--text)", lineHeight: 1.7 }}>
+        <div style={{ textAlign: "left", fontSize: ".85rem", color: "var(--text)", lineHeight: 1.7, overflowY: "auto", flex: 1 }}>
           {UPDATE_NOTES.map((note, i) => (
             <p key={i} style={{ marginBottom: ".3rem" }}>
               <span style={{ color: "var(--accent)", marginRight: ".4rem" }}>•</span>{note}
             </p>
           ))}
         </div>
-        <button className="btn btn-primary" onClick={onDismiss} style={{ marginTop: "1rem" }}>
+        <button className="btn btn-primary" onClick={onDismiss} style={{ marginTop: "1rem", flexShrink: 0 }}>
           Let's go!
         </button>
       </div>
