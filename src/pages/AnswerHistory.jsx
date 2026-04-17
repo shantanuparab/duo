@@ -42,6 +42,8 @@ function renderAnswer(answer, card) {
 export default function AnswerHistory({ room, playerId, roomData, onBack }) {
   const [responses, setResponses] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState("stack"); // "stack" or "list"
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const p1 = roomData?.player1;
   const p2 = roomData?.player2;
@@ -59,10 +61,8 @@ export default function AnswerHistory({ room, playerId, roomData, onBack }) {
 
   // Build list of played cards with their data
   const cards = playedCards.map((cardId) => {
-    // Skip favorites replays for cleaner history
     const cleanId = cardId.startsWith("fav-") ? cardId.replace("fav-", "") : cardId;
 
-    // Try to find the card in decks
     let card = null;
     let deck = null;
     const deckIds = ["wyr", "tot", "daily", "hottake", "spicy", "2truths", "aboutus", "deep", "rate", "challenge"];
@@ -78,13 +78,52 @@ export default function AnswerHistory({ room, playerId, roomData, onBack }) {
     return { cardId, card, deck, myAnswer, theirAnswer };
   }).reverse(); // newest first
 
+  function goNext() {
+    if (currentIndex < cards.length - 1) setCurrentIndex(currentIndex + 1);
+  }
+
+  function goPrev() {
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  }
+
+  // Touch handling for swipe
+  const [touchStart, setTouchStart] = useState(null);
+  function handleTouchStart(e) {
+    setTouchStart(e.touches[0].clientX);
+  }
+  function handleTouchEnd(e) {
+    if (touchStart === null) return;
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (diff > 50) goNext();
+    else if (diff < -50) goPrev();
+    setTouchStart(null);
+  }
+
   return (
     <div className="page dateboard fade-in">
       <div className="db-header">
         <button className="btn btn-ghost back-btn" onClick={onBack}>←</button>
         <h2>💬 Our Answers</h2>
       </div>
-      <p className="db-hint">{playedCards.length} cards played</p>
+
+      {/* View mode toggle + count */}
+      <div className="history-controls">
+        <span className="db-hint">{playedCards.length} cards played</span>
+        <div className="history-toggle">
+          <button
+            className={`history-toggle-btn ${viewMode === "stack" ? "active" : ""}`}
+            onClick={() => setViewMode("stack")}
+          >
+            🃏 Stack
+          </button>
+          <button
+            className={`history-toggle-btn ${viewMode === "list" ? "active" : ""}`}
+            onClick={() => setViewMode("list")}
+          >
+            📋 List
+          </button>
+        </div>
+      </div>
 
       {loading && <p style={{ color: "var(--text-dim)", textAlign: "center", padding: "2rem" }}>Loading...</p>}
 
@@ -96,7 +135,69 @@ export default function AnswerHistory({ room, playerId, roomData, onBack }) {
         </div>
       )}
 
-      {!loading && (
+      {/* STACK VIEW — card-by-card with navigation */}
+      {!loading && cards.length > 0 && viewMode === "stack" && (
+        <div className="history-stack" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+          {/* Card counter */}
+          <div className="history-counter">
+            {currentIndex + 1} / {cards.length}
+          </div>
+
+          {/* Current card */}
+          {(() => {
+            const { cardId, card, deck, myAnswer, theirAnswer } = cards[currentIndex];
+            return (
+              <div
+                className="history-card-stack fade-in"
+                key={cardId}
+                style={{ borderColor: deck?.color ? deck.color + "44" : "var(--border)" }}
+              >
+                {deck && (
+                  <span className="history-deck" style={{ color: deck.color }}>
+                    {deck.emoji} {deck.name}
+                  </span>
+                )}
+                <div className="history-prompt">
+                  {card?.prompt || (card?.a ? `${card.a} vs ${card.b}` : cardId)}
+                </div>
+                <div className="history-answers-stack">
+                  <div className="history-answer mine">
+                    <span className="history-who">{me?.name}</span>
+                    <div className="history-text">{renderAnswer(myAnswer, card)}</div>
+                  </div>
+                  <div className="history-answer theirs">
+                    <span className="history-who">{them?.name}</span>
+                    <div className="history-text">{renderAnswer(theirAnswer, card)}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Navigation */}
+          <div className="history-nav">
+            <button
+              className="btn btn-secondary history-nav-btn"
+              onClick={goPrev}
+              disabled={currentIndex === 0}
+            >
+              ← Prev
+            </button>
+            <button
+              className="btn btn-secondary history-nav-btn"
+              onClick={goNext}
+              disabled={currentIndex === cards.length - 1}
+            >
+              Next →
+            </button>
+          </div>
+
+          <p className="os-hint" style={{ textAlign: "center", marginTop: ".5rem" }}>Swipe or tap arrows to browse</p>
+        </div>
+      )}
+
+      {/* LIST VIEW — all cards scrollable */}
+      {!loading && cards.length > 0 && viewMode === "list" && (
         <div className="pin-list">
           {cards.map(({ cardId, card, deck, myAnswer, theirAnswer }) => (
             <div key={cardId} className="pin-card fade-in">

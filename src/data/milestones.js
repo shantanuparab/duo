@@ -1,16 +1,26 @@
 // Level milestones — what unlocks at each level
 
 export const MILESTONES = [
-  { level: 1, title: "Getting Started",  emoji: "🌱", unlock: "Basic decks + home + games", unlockedDecks: ["wyr", "tot", "daily", "rate", "challenge"], feature: "apartment,notes,miniGames" },
-  { level: 2, title: "New Friend",       emoji: "🐾", unlock: "Adopt a pet!",               unlockedDecks: [], feature: "pet" },
-  { level: 3, title: "Hot Takes",        emoji: "🔥", unlock: "Hot Takes + basic gifts",    unlockedDecks: ["hottake"], feature: "gifts,songs" },
-  { level: 4, title: "Playground",       emoji: "🎾", unlock: "Pet playground",              unlockedDecks: [], feature: "playground" },
-  { level: 5, title: "Butterflies",      emoji: "🦋", unlock: "Butterflies + bouquets",     unlockedDecks: ["spicy"], feature: "bouquets" },
-  { level: 6, title: "Getting Real",     emoji: "🎭", unlock: "2 Truths 1 Lie",             unlockedDecks: ["2truths"] },
-  { level: 7, title: "About Us",         emoji: "💜", unlock: "About Us + love letters",    unlockedDecks: ["aboutus"], feature: "loveLetter" },
-  { level: 8, title: "Deep Talks",       emoji: "🌙", unlock: "Deep Talks + second pet",    unlockedDecks: ["deep"], feature: "secondPet" },
-  { level: 9, title: "Inseparable",      emoji: "🔗", unlock: "All decks",                  unlockedDecks: [] },
-  { level: 10, title: "Soulmates",       emoji: "✨", unlock: "You made it",                unlockedDecks: [] },
+  { level: 1,  title: "Getting Started",      emoji: "🌱", unlock: "Basic decks + home + games",      unlockedDecks: ["wyr", "tot", "daily", "rate", "challenge"], feature: "apartment,notes,miniGames" },
+  { level: 2,  title: "New Friend",           emoji: "🐾", unlock: "Adopt a pet!",                    unlockedDecks: [], feature: "pet" },
+  { level: 3,  title: "Hot Takes",            emoji: "🔥", unlock: "Hot Takes + basic gifts",         unlockedDecks: ["hottake"], feature: "gifts,songs" },
+  { level: 4,  title: "Playground",           emoji: "🎾", unlock: "Pet playground",                   unlockedDecks: [], feature: "playground" },
+  { level: 5,  title: "Butterflies",          emoji: "🦋", unlock: "Butterflies + bouquets",          unlockedDecks: ["spicy"], feature: "bouquets" },
+  { level: 6,  title: "Getting Real",         emoji: "🎭", unlock: "2 Truths 1 Lie",                  unlockedDecks: ["2truths"] },
+  { level: 7,  title: "About Us",             emoji: "💜", unlock: "About Us + love letters",         unlockedDecks: ["aboutus"], feature: "loveLetter" },
+  { level: 8,  title: "Deep Talks",           emoji: "🌙", unlock: "Deep Talks + second pet",         unlockedDecks: ["deep"], feature: "secondPet" },
+  { level: 9,  title: "Inseparable",          emoji: "🔗", unlock: "All decks unlocked",              unlockedDecks: [] },
+  { level: 10, title: "Soulmates",            emoji: "✨", unlock: "Soulmate badge",                  unlockedDecks: [] },
+  { level: 11, title: "Committed",            emoji: "💍", unlock: "Premium gifts unlocked",          unlockedDecks: [], feature: "premiumGifts" },
+  { level: 12, title: "Stargazers",           emoji: "🌌", unlock: "Galaxy gift + study room",        unlockedDecks: [], feature: "studyRoom" },
+  { level: 13, title: "Unstoppable",          emoji: "⚡", unlock: "Third pet slot",                  unlockedDecks: [], feature: "thirdPet" },
+  { level: 14, title: "Dreamers",             emoji: "🌠", unlock: "Rooftop room",                    unlockedDecks: [], feature: "rooftop" },
+  { level: 15, title: "Legendary",            emoji: "🏆", unlock: "Infinity gift + garden room",     unlockedDecks: [], feature: "garden" },
+  { level: 16, title: "Timeless",             emoji: "⏳", unlock: "Arcade room",                     unlockedDecks: [], feature: "arcade" },
+  { level: 17, title: "Eternal",              emoji: "💫", unlock: "Music room",                      unlockedDecks: [], feature: "musicRoom" },
+  { level: 18, title: "Cosmic",               emoji: "🪐", unlock: "Universe gift + spa room",        unlockedDecks: [], feature: "spa" },
+  { level: 19, title: "Infinite",             emoji: "♾️",  unlock: "Observatory room",                unlockedDecks: [], feature: "observatory" },
+  { level: 20, title: "Forever",              emoji: "❤️",  unlock: "Soulmate gift + everything",      unlockedDecks: [] },
 ];
 
 // Preview items for locked features
@@ -23,6 +33,15 @@ export const FEATURE_PREVIEWS = [
   { feature: "loveLetter", emoji: "💌", label: "Love Letters", desc: "Write love letters" },
   { feature: "secondPet", emoji: "🐾🐾", label: "Second Pet", desc: "Adopt another pet" },
   { feature: "miniGames", emoji: "🎮", label: "Games", desc: "Real-time mini games" },
+  { feature: "premiumGifts", emoji: "💎", label: "Premium Gifts", desc: "Diamond, crown & more" },
+  { feature: "thirdPet", emoji: "🐾🐾🐾", label: "Third Pet", desc: "Adopt a third pet" },
+  { feature: "studyRoom", emoji: "📚", label: "Study Room", desc: "Cozy study room" },
+  { feature: "rooftop", emoji: "🌃", label: "Rooftop", desc: "Rooftop hangout" },
+  { feature: "garden", emoji: "🌿", label: "Garden", desc: "Shared garden room" },
+  { feature: "arcade", emoji: "🕹️", label: "Arcade", desc: "Retro arcade room" },
+  { feature: "musicRoom", emoji: "🎸", label: "Music Room", desc: "Jam session room" },
+  { feature: "spa", emoji: "🧖", label: "Spa", desc: "Relaxation spa room" },
+  { feature: "observatory", emoji: "🔭", label: "Observatory", desc: "Stargazing room" },
 ];
 
 function parseFeatures(ms) {

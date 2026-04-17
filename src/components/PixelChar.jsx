@@ -183,10 +183,10 @@ const F_BODY = [
 ];
 
 export const BODY_TYPES = ["male", "female"];
-export const SKIN_COLORS = ["#fde0b5", "#f5c088", "#d4956a", "#a0724a", "#6b4a30", "#f8d5c2"];
-export const HAIR_COLORS = ["#2c1b0e", "#5c3317", "#c2884e", "#f5d96b", "#d94f4f", "#e879a0", "#7e57c2", "#37a0db"];
-export const OUTFIT_COLORS = ["#a855f7", "#ec4899", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#14b8a6"];
-export const SHOE_COLORS = ["#1f1f1f", "#f5f5f5", "#d94f4f", "#3b82f6", "#f59e0b"];
+export const SKIN_COLORS = ["#fde0b5", "#f5c088", "#d4956a", "#c68642", "#a0724a", "#6b4a30", "#4a2d1a", "#f8d5c2", "#ffe0bd", "#8d5524"];
+export const HAIR_COLORS = ["#2c1b0e", "#5c3317", "#c2884e", "#f5d96b", "#d94f4f", "#e879a0", "#7e57c2", "#37a0db", "#1a1a2e", "#f5f5f5", "#22c55e", "#f97316"];
+export const OUTFIT_COLORS = ["#a855f7", "#ec4899", "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#6366f1", "#14b8a6", "#f43f5e", "#84cc16", "#0ea5e9", "#1f1f1f"];
+export const SHOE_COLORS = ["#1f1f1f", "#f5f5f5", "#d94f4f", "#3b82f6", "#f59e0b", "#10b981", "#a855f7", "#ec4899", "#8b4513", "#6b7280"];
 export const HAIR_STYLE_NAMES = Object.keys(HAIR_STYLES);
 
 export const DEFAULT_CHAR = {

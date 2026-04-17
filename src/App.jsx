@@ -1,18 +1,93 @@
 import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Hub from "./pages/Hub";
+import RoomList from "./pages/RoomList";
 import { subscribeRoom } from "./firebase";
 import MoodParticles from "./components/MoodParticles";
 import { applyMoodTheme } from "./components/MoodSlider";
 
-const APP_VERSION = "2.0";
+const APP_VERSION = "3.0";
 const UPDATE_NOTES = [
-  "Pokemon-style pixel art characters (bigger, outlined, more detail)",
-  "All 8 pets redesigned as Pokemon-style creatures",
-  "Pixel art room backgrounds in the apartment",
-  "Office rooms now have pixel art too",
-  "Bug fixes: streak tracking, copy buttons, accessibility",
+  "500 cards across all 10 decks (was 190) — way more to play",
+  "3 new mini games: Emoji Guess, Rank It, Higher Lower",
+  "100 Speed WYR questions & 95 trivia questions",
+  "How to Play tutorials for every deck and game",
+  "Games now wait for both players before starting",
+  "Answer history card stack — swipe through old answers",
+  "20 levels (was 10) with new unlocks all the way up",
+  "14 new gifts including Diamond, Crown, Ring & Soulmate",
+  "7 new apartment rooms: Study, Rooftop, Garden, Arcade & more",
+  "20 moods (was 12) — Grateful, Nostalgic, Focused & more",
+  "10 bouquet types (was 3) — Cherry Blossoms, Midnight Garden...",
+  "More character options: skin tones, hair colors, outfits, shoes",
+  "24 memory emojis (was 8) for bigger variety",
+  "Switch Room button to hop between rooms easily",
 ];
+
+// ---- Room list helpers ----
+
+export function getSavedRooms() {
+  try {
+    return JSON.parse(localStorage.getItem("vc_rooms") || "[]");
+  } catch { return []; }
+}
+
+export function saveRoomToList(code, pid, myName, partnerName) {
+  const rooms = getSavedRooms();
+  const idx = rooms.findIndex((r) => r.code === code);
+  const entry = {
+    code,
+    pid,
+    nickname: idx >= 0 ? rooms[idx].nickname || "" : "",
+    myName: myName || (idx >= 0 ? rooms[idx].myName : "") || "",
+    partnerName: partnerName || (idx >= 0 ? rooms[idx].partnerName : "") || "",
+    lastAccessed: Date.now(),
+  };
+  if (idx >= 0) {
+    rooms[idx] = { ...rooms[idx], ...entry };
+  } else {
+    rooms.push(entry);
+  }
+  localStorage.setItem("vc_rooms", JSON.stringify(rooms));
+}
+
+function removeRoomFromList(code) {
+  const rooms = getSavedRooms().filter((r) => r.code !== code);
+  localStorage.setItem("vc_rooms", JSON.stringify(rooms));
+}
+
+function renameRoom(code, nickname) {
+  const rooms = getSavedRooms();
+  const idx = rooms.findIndex((r) => r.code === code);
+  if (idx >= 0) {
+    rooms[idx].nickname = nickname;
+    localStorage.setItem("vc_rooms", JSON.stringify(rooms));
+  }
+}
+
+function updateRoomAccess(code) {
+  const rooms = getSavedRooms();
+  const idx = rooms.findIndex((r) => r.code === code);
+  if (idx >= 0) {
+    rooms[idx].lastAccessed = Date.now();
+    localStorage.setItem("vc_rooms", JSON.stringify(rooms));
+  }
+}
+
+// Migrate legacy single-room localStorage to rooms list
+function migrateLegacyRoom() {
+  const code = localStorage.getItem("vc_room");
+  const pid = localStorage.getItem("vc_pid");
+  if (code && pid) {
+    const rooms = getSavedRooms();
+    if (!rooms.some((r) => r.code === code)) {
+      saveRoomToList(code, pid, "", "");
+    }
+  }
+}
+
+// Migrate legacy single-room localStorage to rooms list on first load
+migrateLegacyRoom();
 
 // Extract ?code=XYZ from URL
 function getCodeFromURL() {
@@ -53,6 +128,7 @@ export default function App() {
   const [room, setRoom] = useState(shouldShowInvite ? null : storedRoom);
   const [playerId, setPlayerId] = useState(shouldShowInvite ? null : storedPid);
   const [roomData, setRoomData] = useState(null);
+  const [showHome, setShowHome] = useState(false); // force Home for new/join
   const [showWhatsNew, setShowWhatsNew] = useState(() => {
     const seen = localStorage.getItem("vc_version");
     return seen !== APP_VERSION;
@@ -63,16 +139,23 @@ export default function App() {
     return subscribeRoom(room, (data) => {
       if (data) {
         setRoomData(data);
+        // Update room list with partner name once available
+        const myName = playerId === data.player1?.id ? data.player1?.name : data.player2?.name;
+        const theirName = playerId === data.player1?.id ? data.player2?.name : data.player1?.name;
+        if (myName || theirName) {
+          saveRoomToList(room, playerId, myName, theirName);
+        }
       } else {
         // Room was deleted or doesn't exist — clear and go to landing
         localStorage.removeItem("vc_room");
         localStorage.removeItem("vc_pid");
+        removeRoomFromList(room);
         setRoom(null);
         setPlayerId(null);
         setRoomData(null);
       }
     });
-  }, [room]);
+  }, [room, playerId]);
 
   const p1 = roomData?.player1;
   const p2 = roomData?.player2;
@@ -87,6 +170,9 @@ export default function App() {
   function handleJoin(code, pid) {
     setRoom(code);
     setPlayerId(pid);
+    setShowHome(false);
+    // Save to room list
+    saveRoomToList(code, pid, "", "");
     // Clean the URL so the code doesn't stick around
     if (window.history.replaceState) {
       window.history.replaceState({}, "", window.location.pathname);
@@ -94,11 +180,51 @@ export default function App() {
   }
 
   function handleLeave() {
+    // Keep room in list but clear active
     localStorage.removeItem("vc_room");
     localStorage.removeItem("vc_pid");
     setRoom(null);
     setPlayerId(null);
     setRoomData(null);
+    setShowHome(false);
+  }
+
+  function handleSwitchRoom() {
+    localStorage.removeItem("vc_room");
+    localStorage.removeItem("vc_pid");
+    setRoom(null);
+    setPlayerId(null);
+    setRoomData(null);
+    setShowHome(false);
+  }
+
+  function handleEnterRoom(savedRoom) {
+    localStorage.setItem("vc_room", savedRoom.code);
+    localStorage.setItem("vc_pid", savedRoom.pid);
+    updateRoomAccess(savedRoom.code);
+    setRoom(savedRoom.code);
+    setPlayerId(savedRoom.pid);
+    setShowHome(false);
+  }
+
+  function handleRemoveRoom(code) {
+    removeRoomFromList(code);
+    // If it's the active room, also clear active
+    if (code === room) {
+      localStorage.removeItem("vc_room");
+      localStorage.removeItem("vc_pid");
+      setRoom(null);
+      setPlayerId(null);
+      setRoomData(null);
+    }
+    // Force re-render by checking if any rooms left
+    if (getSavedRooms().length === 0) {
+      setShowHome(true);
+    }
+  }
+
+  function handleRenameRoom(code, nickname) {
+    renameRoom(code, nickname);
   }
 
   function dismissWhatsNew() {
@@ -107,10 +233,44 @@ export default function App() {
   }
 
   if (!room || !playerId) {
+    const savedRooms = getSavedRooms();
+
+    // Invite code always goes to Home
+    if (inviteCode) {
+      return (
+        <>
+          {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
+          <Home onJoin={handleJoin} inviteCode={inviteCode} />
+        </>
+      );
+    }
+
+    // Show Home if user clicked New Room / Join with Code
+    if (showHome || savedRooms.length === 0) {
+      return (
+        <>
+          {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
+          <Home
+            onJoin={handleJoin}
+            inviteCode={inviteCode}
+            onBackToRooms={savedRooms.length > 0 ? () => setShowHome(false) : null}
+          />
+        </>
+      );
+    }
+
+    // Show room list
     return (
       <>
         {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
-        <Home onJoin={handleJoin} inviteCode={inviteCode} />
+        <RoomList
+          rooms={savedRooms}
+          onEnter={handleEnterRoom}
+          onNewRoom={() => setShowHome(true)}
+          onJoinRoom={() => setShowHome(true)}
+          onRemove={handleRemoveRoom}
+          onRename={handleRenameRoom}
+        />
       </>
     );
   }
@@ -124,6 +284,7 @@ export default function App() {
         playerId={playerId}
         roomData={roomData}
         onLeave={handleLeave}
+        onSwitchRoom={handleSwitchRoom}
       />
     </>
   );

@@ -3,7 +3,7 @@ import { createRoom, joinRoom, rejoinRoom } from "../firebase";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import PixelChar, { DEFAULT_CHAR, BODY_TYPES, SKIN_COLORS, HAIR_COLORS, OUTFIT_COLORS, SHOE_COLORS, HAIR_STYLE_NAMES } from "../components/PixelChar";
 
-export default function Home({ onJoin, inviteCode }) {
+export default function Home({ onJoin, inviteCode, onBackToRooms }) {
   const [step, setStep] = useState(inviteCode ? "invite-loading" : "landing");
   const [name, setName] = useState("");
   const [partnerName, setPartnerName] = useState("");
@@ -180,18 +180,25 @@ export default function Home({ onJoin, inviteCode }) {
           <button className="btn btn-primary" onClick={() => setStep("create-name")}>New Room</button>
           <button className="btn btn-secondary" onClick={() => setStep("join-char")}>Join with Code</button>
         </div>
-        <div className="rejoin-section fade-in">
-          <p className="rejoin-label">Already in a room?</p>
-          <div className="rejoin-row">
-            <input className="input rejoin-input" type="text" placeholder="Room code" value={rejoinCode}
-              onChange={(e) => { setRejoinCode(e.target.value.toUpperCase()); setError(""); }}
-              maxLength={6} style={{ textTransform: "uppercase", letterSpacing: ".15em", textAlign: "center" }} />
-            <button className="btn btn-ghost" disabled={rejoinCode.length < 4 || loading} onClick={handleQuickRejoin}>
-              {loading ? "..." : "Rejoin"}
-            </button>
+        {onBackToRooms && (
+          <div className="fade-in" style={{ marginTop: ".5rem" }}>
+            <button className="btn btn-ghost" onClick={onBackToRooms}>Back to My Rooms</button>
           </div>
-          {error && <p className="error">{error}</p>}
-        </div>
+        )}
+        {!onBackToRooms && (
+          <div className="rejoin-section fade-in">
+            <p className="rejoin-label">Already in a room?</p>
+            <div className="rejoin-row">
+              <input className="input rejoin-input" type="text" placeholder="Room code" value={rejoinCode}
+                onChange={(e) => { setRejoinCode(e.target.value.toUpperCase()); setError(""); }}
+                maxLength={6} style={{ textTransform: "uppercase", letterSpacing: ".15em", textAlign: "center" }} />
+              <button className="btn btn-ghost" disabled={rejoinCode.length < 4 || loading} onClick={handleQuickRejoin}>
+                {loading ? "..." : "Rejoin"}
+              </button>
+            </div>
+            {error && <p className="error">{error}</p>}
+          </div>
+        )}
       </div>
     );
   }

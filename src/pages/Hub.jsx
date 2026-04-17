@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { drawCard, setOnline, endRoom, subscribeCustomCards, subscribeFavorites, setMood, sendPoke } from "../firebase";
 import { collection, getFirestore, onSnapshot, query, orderBy } from "firebase/firestore";
+import { getSavedRooms } from "../App";
 import { PhotoImg } from "../components/PhotoViewer";
 import { decks, getRandomCard } from "../data/cards";
 import PixelChar, { DEFAULT_CHAR } from "../components/PixelChar";
@@ -17,6 +18,7 @@ import OurSpace from "./OurSpace";
 import Apartment from "./Apartment";
 import AnswerHistory from "./AnswerHistory";
 import MiniGames from "./MiniGames";
+import Tutorial from "./Tutorial";
 import { getLevel } from "../data/levels";
 
 // Heart evolves with level — each stage has a relationship phase
@@ -31,12 +33,22 @@ const HEART_STAGES = [
   { emoji: "💜", label: "You're my person" },
   { emoji: "❤️‍🔥", label: "On fire for you" },
   { emoji: "❤️", label: "All in" },
+  { emoji: "💍", label: "Committed" },
+  { emoji: "🌌", label: "Written in the stars" },
+  { emoji: "⚡", label: "Unstoppable together" },
+  { emoji: "🌠", label: "Dreaming together" },
+  { emoji: "🏆", label: "Legendary love" },
+  { emoji: "⏳", label: "Timeless connection" },
+  { emoji: "💫", label: "Eternal flame" },
+  { emoji: "🪐", label: "Cosmic bond" },
+  { emoji: "♾️", label: "Infinite love" },
+  { emoji: "❤️", label: "Forever yours" },
 ];
 function getHeart(level) {
   return HEART_STAGES[Math.min(level, HEART_STAGES.length) - 1] || HEART_STAGES[0];
 }
 
-export default function Hub({ room, playerId, roomData, onLeave }) {
+export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom }) {
   const [view, setView] = useState("hub");
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showHeartbreak, setShowHeartbreak] = useState(false);
@@ -338,6 +350,8 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
   if (view === "apartment") return <Apartment room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "games") return <MiniGames room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "answers") return <AnswerHistory room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
+  if (view === "tutorial") return <Tutorial type="cards" onBack={() => setView("hub")} />;
+  if (view === "tutorial-games") return <Tutorial type="games" onBack={() => setView("hub")} />;
 
   // Milestones
   const unlockedDeckIds = getUnlockedDecks(lvl.level);
@@ -508,7 +522,10 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
       </button>
 
       {/* Deck grid */}
-      <h3 className="hub-section-title">Or pick a deck</h3>
+      <div className="hub-section-row">
+        <h3 className="hub-section-title">Or pick a deck</h3>
+        <button className="btn btn-ghost tutorial-link" onClick={() => setView("tutorial")}>How to Play</button>
+      </div>
       <div className="deck-grid">
         {allDecks.map((d) => (
           <button
@@ -580,7 +597,7 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
           🎨 Character
         </button>
         <button className="btn btn-secondary" onClick={() => navigator.clipboard?.writeText(room)}>
-          🔗 {room}
+          🔗 {(() => { const sr = getSavedRooms().find(r => r.code === room); return sr?.nickname || room; })()}
         </button>
       </div>
 
@@ -617,6 +634,9 @@ export default function Hub({ room, playerId, roomData, onLeave }) {
               style={{ opacity, transition: "opacity .5s" }}>End It 💔</button>
           );
         })()}
+        {onSwitchRoom && (
+          <button className="btn btn-secondary" onClick={onSwitchRoom}>Switch Room</button>
+        )}
         <button className="btn btn-ghost" onClick={onLeave}>Leave Room</button>
       </div>
 

@@ -17,6 +17,20 @@ const ROOMS = [
     palette: { wall: "#2a6848", floor: "#3a8860", accent: "#50b880", furniture: "#40a070", detail: "#60d090" } },
   { id: "movies",     name: "Movie Room",    status: "Watching something", color: "#ec4899", floorY: 16, emoji: "🎬",
     palette: { wall: "#5a2848", floor: "#6a3858", accent: "#9a5888", furniture: "#804870", detail: "#b070a0" } },
+  { id: "study",      name: "Study Room",    status: "Studying",           color: "#0ea5e9", floorY: 16, emoji: "📚",
+    palette: { wall: "#1a3a5c", floor: "#2a4a6c", accent: "#4a7aac", furniture: "#3a6a9c", detail: "#5a8abc" } },
+  { id: "rooftop",    name: "Rooftop",       status: "Stargazing",         color: "#6d28d9", floorY: 32, emoji: "🌃",
+    palette: { wall: "#1a1040", floor: "#2a2060", accent: "#5040a0", furniture: "#3a3080", detail: "#6050b0" } },
+  { id: "garden",     name: "Garden",        status: "In the garden",      color: "#22c55e", floorY: 12, emoji: "🌿",
+    palette: { wall: "#1a4a2a", floor: "#2a6a3a", accent: "#4aaa5a", furniture: "#3a8a4a", detail: "#5aca6a" } },
+  { id: "arcade",     name: "Arcade",        status: "Gaming",             color: "#f43f5e", floorY: 16, emoji: "🕹️",
+    palette: { wall: "#3a1040", floor: "#4a2050", accent: "#7a4080", furniture: "#5a3060", detail: "#9a60a0" } },
+  { id: "music",      name: "Music Room",    status: "Jamming",            color: "#f97316", floorY: 16, emoji: "🎸",
+    palette: { wall: "#5a3010", floor: "#6a4020", accent: "#9a7040", furniture: "#7a5030", detail: "#ba8050" } },
+  { id: "spa",        name: "Spa",           status: "Relaxing in spa",    color: "#06b6d4", floorY: 16, emoji: "🧖",
+    palette: { wall: "#104a50", floor: "#205a60", accent: "#408a90", furniture: "#307a80", detail: "#50aab0" } },
+  { id: "observatory",name: "Observatory",   status: "Watching the stars", color: "#4f46e5", floorY: 16, emoji: "🔭",
+    palette: { wall: "#0a0a30", floor: "#1a1a50", accent: "#3a3a90", furniture: "#2a2a70", detail: "#5050b0" } },
 ];
 
 // Generate a Pokemon-style room background on canvas

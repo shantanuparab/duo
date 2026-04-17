@@ -13,16 +13,37 @@ const GIFTS = [
   { id: "hug", emoji: "🤗", name: "Virtual Hug", level: 3 },
   { id: "sunflower", emoji: "🌻", name: "Sunflower", level: 4 },
   { id: "tulip", emoji: "🌷", name: "Tulip", level: 4 },
+  { id: "icecream", emoji: "🍦", name: "Ice Cream", level: 4 },
   { id: "heart", emoji: "💝", name: "Heart", level: 5 },
   { id: "kiss", emoji: "💋", name: "Kiss", level: 5 },
+  { id: "chocolate", emoji: "🍫", name: "Chocolate", level: 5 },
   { id: "teddy", emoji: "🧸", name: "Teddy Bear", level: 6 },
+  { id: "balloon", emoji: "🎈", name: "Balloon", level: 6 },
+  { id: "cake", emoji: "🎂", name: "Cake", level: 7 },
   { id: "letter", emoji: "💌", name: "Love Letter", level: 7, hasMessage: true },
+  { id: "diamond", emoji: "💎", name: "Diamond", level: 8 },
+  { id: "moon", emoji: "🌙", name: "Moon", level: 8 },
+  { id: "crown", emoji: "👑", name: "Crown", level: 9 },
+  { id: "ring", emoji: "💍", name: "Ring", level: 10 },
+  { id: "fireworks", emoji: "🎆", name: "Fireworks", level: 10 },
+  { id: "lovepoem", emoji: "📜", name: "Love Poem", level: 10, hasMessage: true },
+  { id: "galaxy", emoji: "🌌", name: "Galaxy", level: 12 },
+  { id: "infinity", emoji: "♾️", name: "Infinity", level: 15 },
+  { id: "universe", emoji: "🪐", name: "Universe", level: 18 },
+  { id: "soulmate", emoji: "❤️‍🔥", name: "Soulmate", level: 20, hasMessage: true },
 ];
 
 const BOUQUET_TYPES = [
   { id: "roses", emoji: "🌹🌹🌹", name: "Rose Bouquet", waterPerDay: 2 },
   { id: "mixed", emoji: "🌷🌻🌹", name: "Mixed Bouquet", waterPerDay: 1 },
   { id: "sunflowers", emoji: "🌻🌻🌻", name: "Sunflower Bunch", waterPerDay: 1 },
+  { id: "lavender", emoji: "💜💜💜", name: "Lavender Field", waterPerDay: 1 },
+  { id: "tropical", emoji: "🌺🌴🌸", name: "Tropical Paradise", waterPerDay: 2 },
+  { id: "wildflower", emoji: "🌼🌿🌸", name: "Wildflower Meadow", waterPerDay: 1 },
+  { id: "cherry", emoji: "🌸🌸🌸", name: "Cherry Blossoms", waterPerDay: 2 },
+  { id: "garden", emoji: "🌹🌷🌻", name: "Full Garden", waterPerDay: 3 },
+  { id: "midnight", emoji: "🖤🌙💜", name: "Midnight Garden", waterPerDay: 2 },
+  { id: "rainbow", emoji: "🌈🌸🌻", name: "Rainbow Bloom", waterPerDay: 2 },
 ];
 
 const PET_TRICKS = [
