@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAllCardResponses } from "../firebase";
+import { getAllCardResponses, getCustomCards } from "../firebase";
 import { getDeck, getCard } from "../data/cards";
 import { PhotoImg } from "../components/PhotoViewer";
 
@@ -41,6 +41,7 @@ function renderAnswer(answer, card) {
 
 export default function AnswerHistory({ room, playerId, roomData, onBack }) {
   const [responses, setResponses] = useState(null);
+  const [customCards, setCustomCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("stack"); // "stack" or "list"
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -53,8 +54,12 @@ export default function AnswerHistory({ room, playerId, roomData, onBack }) {
   const playedCards = roomData?.playedCards || [];
 
   useEffect(() => {
-    getAllCardResponses(room).then((data) => {
-      setResponses(data);
+    Promise.all([
+      getAllCardResponses(room),
+      getCustomCards(room),
+    ]).then(([respData, customData]) => {
+      setResponses(respData);
+      setCustomCards(customData);
       setLoading(false);
     });
   }, [room]);
@@ -69,6 +74,15 @@ export default function AnswerHistory({ room, playerId, roomData, onBack }) {
     for (const did of deckIds) {
       card = getCard(did, cleanId);
       if (card) { deck = getDeck(did); break; }
+    }
+
+    // Fallback: check custom cards
+    if (!card) {
+      const customCard = customCards.find((c) => c.id === cleanId);
+      if (customCard) {
+        card = customCard;
+        deck = { id: "custom", name: "Custom", emoji: "✏️", color: "#f472b6" };
+      }
     }
 
     const resp = responses?.[cardId] || {};
