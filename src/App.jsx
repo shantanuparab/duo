@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Hub from "./pages/Hub";
 import RoomList from "./pages/RoomList";
-import { subscribeRoom } from "./firebase";
+import { subscribeRoom, ensureDevTestPartner } from "./firebase";
 import MoodParticles from "./components/MoodParticles";
 import { applyMoodTheme } from "./components/MoodSlider";
 import { isDevMode, enterDevRoom, isDevRoomCode } from "./lib/devmode";
+import { DEFAULT_CHAR } from "./components/PixelChar";
 import DevPanel from "./components/DevPanel";
 
 const APP_VERSION = "3.0";
@@ -172,6 +173,19 @@ export default function App() {
   useEffect(() => {
     if (partnerMoodId) applyMoodTheme(partnerMoodId);
   }, [partnerMoodId, roomData]);
+
+  // Auto-heal: if a dev room is loaded without player2, populate it.
+  // Triggers when an older dev room (created before testPartner support) gets opened.
+  useEffect(() => {
+    if (!room || !roomData) return;
+    if (!roomData.dev) return;
+    if (roomData.player2) return;
+    ensureDevTestPartner(room, {
+      id: "dev-test-partner-v1",
+      name: "Test Partner",
+      character: { ...DEFAULT_CHAR, body: DEFAULT_CHAR.body === "f" ? "m" : "f" },
+    }).catch((e) => console.error("Failed to heal dev test partner:", e));
+  }, [room, roomData?.dev, roomData?.player2]);
 
   function handleJoin(code, pid) {
     setRoom(code);

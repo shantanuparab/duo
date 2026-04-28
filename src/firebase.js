@@ -32,13 +32,21 @@ const db = getFirestore(app);
 export async function createRoom(playerName, character, partnerName, welcomeMsg, opts = {}) {
   // opts.code lets the dev room flow create a room at a specific known code.
   // opts.dev marks the room as a developer test room (used by isDev gating in UI).
+  // opts.testPartner = { name, character } pre-populates player2 (dev room flow).
   const code = opts.code || Math.random().toString(36).substring(2, 8).toUpperCase();
   const playerId = generatePlayerId();
   const roomRef = doc(db, "rooms", code);
+  const player2 = opts.testPartner
+    ? {
+        id: opts.testPartner.id || generatePlayerId(),
+        name: opts.testPartner.name,
+        character: opts.testPartner.character,
+      }
+    : null;
   await setDoc(roomRef, {
     createdAt: serverTimestamp(),
     player1: { name: playerName, id: playerId, character },
-    player2: null,
+    player2,
     partnerName: partnerName || "",
     welcomeMsg: welcomeMsg || "",
     creatorName: playerName,
@@ -53,13 +61,31 @@ export async function createRoom(playerName, character, partnerName, welcomeMsg,
   });
   localStorage.setItem("vc_pid", playerId);
   localStorage.setItem("vc_room", code);
-  return { code, playerId };
+  return { code, playerId, partnerId: player2?.id };
 }
 
 // Set/override the room's XP. Dev-only. Used by the Dev Panel to test level-gated features.
 export async function setRoomXp(code, xp) {
   const roomRef = doc(db, "rooms", code);
   await updateDoc(roomRef, { xp: Math.max(0, Math.floor(xp)) });
+}
+
+// Heal-write: set player2 on a dev room that's missing it. Used when an older
+// dev room (created before the testPartner option existed) gets opened and
+// would otherwise show the "waiting for partner" UI.
+export async function ensureDevTestPartner(code, partner) {
+  const roomRef = doc(db, "rooms", code);
+  const snap = await getDoc(roomRef);
+  if (!snap.exists()) return;
+  const data = snap.data();
+  if (data.player2) return; // already populated
+  await updateDoc(roomRef, {
+    player2: {
+      id: partner.id || generatePlayerId(),
+      name: partner.name,
+      character: partner.character,
+    },
+  });
 }
 
 // --- Adventures (chapters + side quests) ---

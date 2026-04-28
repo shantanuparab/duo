@@ -50,13 +50,27 @@ export function isDevRoomCode(code) {
 // Create or rejoin the founder's dev room.
 // - If a room already exists at the dev code: rejoin using stored pid (or join fresh)
 // - Otherwise: create a fresh room at that code, marked dev: true in Firestore
-import { createRoom, joinRoom } from "../firebase";
+//
+// The dev room always has BOTH player1 and player2 populated. player2 is a
+// synthetic "Test Partner" with a stable id so the founder can fill both sides
+// for testing without needing a real second client. Existing dev rooms that
+// were created before this fix get healed on entry via ensureDevTestPartner.
+import { createRoom, joinRoom, ensureDevTestPartner } from "../firebase";
 import { saveRoomToList } from "../App";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { DEFAULT_CHAR } from "../components/PixelChar";
 
 const DEV_PLAYER_NAME = "DevMe";
 const DEV_PARTNER_NAME = "Test Partner";
+const DEV_PARTNER_ID = "dev-test-partner-v1";
+
+// Visually distinct test partner character (different body type + colors).
+function makeTestPartnerCharacter() {
+  return {
+    ...DEFAULT_CHAR,
+    body: DEFAULT_CHAR.body === "f" ? "m" : "f",
+  };
+}
 
 export async function enterDevRoom() {
   const code = getOrCreateDevRoomCode();
@@ -64,27 +78,42 @@ export async function enterDevRoom() {
   const snap = await getDoc(doc(db, "rooms", code));
 
   if (snap.exists()) {
-    // Already exists — try to rejoin with stored pid first
+    // Already exists — heal player2 if missing (older dev rooms predate this).
+    await ensureDevTestPartner(code, {
+      id: DEV_PARTNER_ID,
+      name: DEV_PARTNER_NAME,
+      character: makeTestPartnerCharacter(),
+    });
+
+    // Then rejoin with stored pid first.
     const storedPid = localStorage.getItem("vc_pid");
     const data = snap.data();
-    if (storedPid && (storedPid === data.player1?.id || storedPid === data.player2?.id)) {
+    if (storedPid && (storedPid === data.player1?.id || storedPid === data.player2?.id || storedPid === DEV_PARTNER_ID)) {
       localStorage.setItem("vc_room", code);
-      saveRoomToList(code, storedPid, data.player1?.name || DEV_PLAYER_NAME, data.player2?.name || DEV_PARTNER_NAME, { dev: true });
+      saveRoomToList(code, storedPid, data.player1?.name || DEV_PLAYER_NAME, DEV_PARTNER_NAME, { dev: true });
       return { code, playerId: storedPid };
     }
     // Stored pid doesn't match — fall back to joinRoom by name (rejoin path).
     const r = await joinRoom(code, DEV_PLAYER_NAME, { ...DEFAULT_CHAR });
-    saveRoomToList(code, r.playerId, DEV_PLAYER_NAME, data.player2?.name || DEV_PARTNER_NAME, { dev: true });
+    saveRoomToList(code, r.playerId, DEV_PLAYER_NAME, DEV_PARTNER_NAME, { dev: true });
     return r;
   }
 
-  // Doesn't exist — create fresh, marked dev
+  // Doesn't exist — create fresh, marked dev, with synthetic test partner pre-populated.
   const r = await createRoom(
     DEV_PLAYER_NAME,
     { ...DEFAULT_CHAR },
     DEV_PARTNER_NAME,
     "Dev mode test room. Reset XP and Adventures state freely.",
-    { code, dev: true }
+    {
+      code,
+      dev: true,
+      testPartner: {
+        id: DEV_PARTNER_ID,
+        name: DEV_PARTNER_NAME,
+        character: makeTestPartnerCharacter(),
+      },
+    }
   );
   saveRoomToList(code, r.playerId, DEV_PLAYER_NAME, DEV_PARTNER_NAME, { dev: true });
   return r;
