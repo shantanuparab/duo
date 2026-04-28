@@ -6,22 +6,24 @@
 // prompt. Only append at the end of `prompts`. Reorder requires a migration.
 //
 // Each chapter unlocks at a specific level that aligns with where the couple
-// is in the relationship arc:
+// is in the relationship arc (Knapp's coming-together model + Modern Dating
+// stages + Fisher's brain systems + Sternberg's triangle):
 //
-//   Chapter 1 - L3  - Love Maps          - Knapp: Initiating + Experimenting
-//                                          (Modern: "Flirtationship" / talking)
-//   Chapter 2 - L5  - Becoming Closer    - Knapp: Intensifying
-//                                          (Modern: "Relationship Potential")
-//   Chapter 3 - L7  - Becoming Us        - Knapp: Integrating
-//                                          (Modern: "In a Relationship")
-//   Chapter 4 - L10 - Imagined Futures   - Knapp: Bonding (early)
-//                                          (Modern: deep commitment forming)
-//   Chapter 5 - L15 - The Long Game      - Knapp: Bonding (mature)
-//                                          (Modern: "Commitment or Bust")
+//   Chapter 1 - L3  - Love Maps          - Initiating + Experimenting
+//   Chapter 2 - L5  - Becoming Closer    - Intensifying
+//   Chapter 3 - L7  - Becoming Us        - Integrating
+//   Chapter 4 - L10 - Imagined Futures   - Bonding (early)
+//   Chapter 5 - L15 - The Long Game      - Bonding (mature)
 //
-// Frameworks: Gottman (Love Maps + Sound Relationship House), Aron (deepening
-// + vulnerability questions Q13-36), Sternberg (intimacy/passion/commitment),
-// Fisher (lust/attraction/attachment brain systems).
+// **Within-chapter pacing:** Each chapter ramps from light to heavy.
+//   - Prompt 1: easiest entry (low vulnerability, often about THEM, not US)
+//   - Prompts 2-3: still light, type variety to build comfort with the format
+//   - Prompts 4-6: medium, gentle vulnerability begins
+//   - Prompts 7-9: chapter's heaviest territory
+//   - Prompt 10: reflective close (vibe check or grounding exchange)
+//
+// The first prompt is the bounce-or-stay moment. If it asks for too much,
+// users back out before earning the chapter. Keep prompt 1 disarmingly easy.
 //
 // Prompt type contract:
 //   - 'question'   — single text answer per partner. Hidden until both submit.
@@ -33,6 +35,9 @@ export const ADVENTURE_CHAPTERS = [
   // -----------------------------------------------------------------------
   // CHAPTER 1 - Love Maps (L3) - Initiating + Experimenting
   // -----------------------------------------------------------------------
+  // Already light end-to-end. Pacing: small joys → vibe → trivia → playful
+  // challenge → pet peeve → preferences → nostalgia → warm challenge →
+  // self-knowledge → low-stakes future-vision close.
   {
     id: "love-maps",
     title: "Chapter 1: Love Maps",
@@ -114,9 +119,9 @@ export const ADVENTURE_CHAPTERS = [
   // -----------------------------------------------------------------------
   // CHAPTER 2 - Becoming Closer (L5) - Intensifying
   // -----------------------------------------------------------------------
-  // The "can't-stop-thinking-about-you" phase, neurochemistry-wise. Mutual
-  // affection signals start showing up. The Aron deepening set fits here,
-  // softened to match early intensifying. Fisher's romantic-attraction stage.
+  // Pacing: gratitude → light vibe → warm anecdote → playful challenge →
+  // nostalgic exchange → small "us" observation → preferences exchange →
+  // self-disclosure → honest avoidance → reflective vibe close.
   {
     id: "becoming-closer",
     title: "Chapter 2: Becoming Closer",
@@ -125,65 +130,65 @@ export const ADVENTURE_CHAPTERS = [
     sourceUrl: "https://en.wikipedia.org/wiki/36_Questions_That_Lead_to_Love",
     unlockLevel: 5,
     description:
-      "Somewhere between 'getting to know you' and 'I keep thinking about you' is the part where small things start mattering. The way you laugh. The thing you said on Tuesday. Whose voice you want at the end of a hard day. This chapter sits there.",
+      "Somewhere between 'getting to know you' and 'I keep thinking about you' is the part where small things start mattering. The way you laugh. The thing you said on Tuesday. Whose voice you want at the end of a hard day. This chapter sits there. It opens easy and goes a little deeper as you walk it.",
     schemaVersion: 1,
     prompts: [
       {
         id: "bc-1",
         type: "question",
         baseText:
-          "What's a small thing I do that you find yourself smiling about when I'm not around?",
+          "What's a small thing in your day right now that you're actually grateful for?",
       },
       {
         id: "bc-2",
         type: "vibe-check",
-        baseText: "Honestly — how much have you been thinking about me this week?",
-        scale: { min: 1, max: 10, lowLabel: "barely", highLabel: "constantly" },
+        baseText: "How's your week treating you?",
+        scale: { min: 1, max: 10, lowLabel: "rough", highLabel: "really good" },
       },
       {
         id: "bc-3",
         type: "question",
         baseText:
-          "What's something you wish more people knew about you, that you'd be glad if I knew?",
+          "What's the kindest thing someone's done for you recently? Have you told them?",
       },
       {
         id: "bc-4",
-        type: "exchange",
-        baseText:
-          "Both write three songs that remind you of someone you've cared about. Reveal at the same time. Then talk about why.",
-        revealMode: "simultaneous",
-      },
-      {
-        id: "bc-5",
-        type: "question",
-        baseText:
-          "Is there something you've wanted to do for a long time and haven't? What's the actual reason — not the polite one?",
-      },
-      {
-        id: "bc-6",
         type: "challenge",
         baseText:
           "Send a voice note today about the most boring meeting, class, or moment of your week. Your voice matters more than the words.",
         confirmation: "both-press-done",
       },
       {
-        id: "bc-7",
-        type: "question",
+        id: "bc-5",
+        type: "exchange",
         baseText:
-          "What's the kindest thing someone's done for you recently? Have you told them?",
+          "Both write three songs that remind you of someone you've cared about. Reveal at the same time. Then talk about why.",
+        revealMode: "simultaneous",
       },
       {
-        id: "bc-8",
+        id: "bc-6",
+        type: "question",
+        baseText:
+          "What's a small thing I do that you find yourself smiling about when I'm not around?",
+      },
+      {
+        id: "bc-7",
         type: "exchange",
         baseText:
           "Both write five small things that have quietly become 'yours' — a coffee order, a chair, a song, a route home, anything. Reveal at the same time.",
         revealMode: "simultaneous",
       },
       {
+        id: "bc-8",
+        type: "question",
+        baseText:
+          "What's something you wish more people knew about you, that you'd be glad if I knew?",
+      },
+      {
         id: "bc-9",
         type: "question",
         baseText:
-          "What kind of moment in your week do you want to share with me, but you don't always remember to?",
+          "Is there something you've wanted to do for a long time and haven't? What's the actual reason — not the polite one?",
       },
       {
         id: "bc-10",
@@ -197,9 +202,9 @@ export const ADVENTURE_CHAPTERS = [
   // -----------------------------------------------------------------------
   // CHAPTER 3 - Becoming Us (L7) - Integrating
   // -----------------------------------------------------------------------
-  // "Coupled" identity forms. Friend groups overlap, conflict patterns
-  // surface, complementarity becomes legible. Sternberg intimacy + Gottman
-  // Sound Relationship House's "turning toward" pillar.
+  // Pacing: inside-joke → connectedness vibe → us-pair-only exchange → habit
+  // mirroring challenge → trust observation → public defense → "at our best"
+  // exchange → conflict pattern → unexpected change → message-to-future-us close.
   {
     id: "becoming-us",
     title: "Chapter 3: Becoming Us",
@@ -208,59 +213,59 @@ export const ADVENTURE_CHAPTERS = [
     sourceUrl: "https://www.gottman.com/blog/the-sound-relationship-house/",
     unlockLevel: 7,
     description:
-      "At some point you stop being two people who like each other and start being a we. Friends notice. Conflict patterns show up. You start doing each other's mannerisms without meaning to. This chapter is for that.",
+      "At some point you stop being two people who like each other and start being a we. Friends notice. Conflict patterns show up. You start doing each other's mannerisms without meaning to. This chapter is for that. Starts with the easy stuff — inside jokes, things only we do — and works its way to the harder questions about how we handle each other.",
     schemaVersion: 1,
     prompts: [
       {
         id: "bu-1",
-        type: "exchange",
+        type: "question",
         baseText:
-          "Both finish the sentence: 'When we're at our best together, what we look like is ___'. Reveal at the same time.",
-        revealMode: "simultaneous",
+          "What's a small inside joke or running thread between us that you really like? Bonus points if you can name the moment it started.",
       },
       {
         id: "bu-2",
-        type: "question",
-        baseText:
-          "What's the thing about us you'd defend to a friend or family member who didn't get it?",
+        type: "vibe-check",
+        baseText: "How connected do you feel to me right now?",
+        scale: { min: 1, max: 10, lowLabel: "a little far", highLabel: "right here" },
       },
       {
         id: "bu-3",
-        type: "question",
-        baseText:
-          "When we disagree, what's a pattern you've noticed in how we handle it? Be honest — even the part that isn't flattering.",
-      },
-      {
-        id: "bu-4",
-        type: "vibe-check",
-        baseText: "How safe do you feel disagreeing with me?",
-        scale: { min: 1, max: 10, lowLabel: "not safe", highLabel: "fully safe" },
-      },
-      {
-        id: "bu-5",
-        type: "challenge",
-        baseText:
-          "Tell me, in person or by voice note, one thing I do — a habit, a phrase, a mannerism — that you've started doing too.",
-        confirmation: "both-press-done",
-      },
-      {
-        id: "bu-6",
-        type: "question",
-        baseText:
-          "What's something I've done recently that made you trust me more, even if I don't realize I did it?",
-      },
-      {
-        id: "bu-7",
         type: "exchange",
         baseText:
           "Both write three things you do as a pair that no one else gets to do with you. Reveal at the same time.",
         revealMode: "simultaneous",
       },
       {
+        id: "bu-4",
+        type: "challenge",
+        baseText:
+          "Tell me, in person or by voice note, one thing I do — a habit, a phrase, a mannerism — that you've started doing too.",
+        confirmation: "both-press-done",
+      },
+      {
+        id: "bu-5",
+        type: "question",
+        baseText:
+          "What's something I've done recently that made you trust me more, even if I don't realize I did it?",
+      },
+      {
+        id: "bu-6",
+        type: "question",
+        baseText:
+          "What's the thing about us you'd defend to a friend or family member who didn't get it?",
+      },
+      {
+        id: "bu-7",
+        type: "exchange",
+        baseText:
+          "Both finish the sentence: 'When we're at our best together, what we look like is ___'. Reveal at the same time.",
+        revealMode: "simultaneous",
+      },
+      {
         id: "bu-8",
         type: "question",
         baseText:
-          "What's a way I've changed since we became 'us', that you didn't expect?",
+          "When we disagree, what's a pattern you've noticed in how we handle it? Be honest — even the part that isn't flattering.",
       },
       {
         id: "bu-9",
@@ -281,9 +286,10 @@ export const ADVENTURE_CHAPTERS = [
   // -----------------------------------------------------------------------
   // CHAPTER 4 - Imagined Futures (L10) - Bonding (early)
   // -----------------------------------------------------------------------
-  // Future-orientation. Vulnerability deepens. Aron Q25-36 vulnerability
-  // territory + Fisher's attachment-stage neurochemistry (oxytocin, calm,
-  // security, "the long view").
+  // Pacing: small forward-look → frequency-of-future-thoughts vibe → ritual
+  // exchange → letter-from-future-us challenge → home feel exchange →
+  // 5-year vision → "we" statements → unspoken want → hard-year question →
+  // ready-to-bet vibe close.
   {
     id: "imagined-futures",
     title: "Chapter 4: Imagined Futures",
@@ -292,71 +298,72 @@ export const ADVENTURE_CHAPTERS = [
     sourceUrl: "https://en.wikipedia.org/wiki/36_Questions_That_Lead_to_Love",
     unlockLevel: 10,
     description:
-      "There's a version of you that thinks about a future with the other person and a version that doesn't. This chapter is for when both of you have started thinking about it. The questions are heavier here. Take your time.",
+      "There's a version of you that thinks about a future with the other person and a version that doesn't. This chapter is for when both of you have started thinking about it. It starts with what you're already looking forward to, and walks gently into the harder questions about what you'd actually choose.",
     schemaVersion: 1,
     prompts: [
       {
         id: "if-1",
         type: "question",
         baseText:
-          "If you knew that next year would be a hard year — money, health, family — would you want to spend it with me? Why?",
+          "What's something about the future that you find yourself looking forward to, with me in mind?",
       },
       {
         id: "if-2",
-        type: "exchange",
-        baseText:
-          "Both write three 'we' statements about the version of us you most want. ('We are people who ___.' / 'We choose ___.' / 'We will ___.') Reveal at the same time.",
-        revealMode: "simultaneous",
+        type: "vibe-check",
+        baseText: "How often do you find yourself thinking about a long-term future with me?",
+        scale: { min: 1, max: 10, lowLabel: "rarely", highLabel: "all the time" },
       },
       {
         id: "if-3",
-        type: "question",
+        type: "exchange",
         baseText:
-          "What's something you've never said out loud about what you actually want from a long partnership?",
+          "Both write three small rituals you'd want to build with me over the next year (a weekly thing, a kind of morning, a tradition, a place). Reveal at the same time.",
+        revealMode: "simultaneous",
       },
       {
         id: "if-4",
-        type: "question",
-        baseText:
-          "If we both had unlimited choice, what's the version of life in 5 years you'd genuinely want for us?",
-      },
-      {
-        id: "if-5",
         type: "challenge",
         baseText:
           "Write one paragraph as a letter from future-us (5 years from now) to current-us. Send it to me. I'll do the same.",
         confirmation: "both-press-done",
       },
       {
-        id: "if-6",
-        type: "question",
-        baseText:
-          "What's something about your past you'd want a long-term partner to fully know? You don't have to share it in detail here — just name what it is.",
-      },
-      {
-        id: "if-7",
-        type: "vibe-check",
-        baseText: "How ready do you feel, right now, to bet on this?",
-        scale: { min: 1, max: 10, lowLabel: "still unsure", highLabel: "all in" },
-      },
-      {
-        id: "if-8",
+        id: "if-5",
         type: "exchange",
         baseText:
           "Both write five things you'd want our home to feel like in 5 years. (Light, smells, mornings, who's there, what's on the walls.) Reveal at the same time.",
         revealMode: "simultaneous",
       },
       {
+        id: "if-6",
+        type: "question",
+        baseText:
+          "If we both had unlimited choice, what's the version of life in 5 years you'd genuinely want for us?",
+      },
+      {
+        id: "if-7",
+        type: "exchange",
+        baseText:
+          "Both write three 'we' statements about the version of us you most want. ('We are people who ___.' / 'We choose ___.' / 'We will ___.') Reveal at the same time.",
+        revealMode: "simultaneous",
+      },
+      {
+        id: "if-8",
+        type: "question",
+        baseText:
+          "What's something you've never said out loud about what you actually want from a long partnership?",
+      },
+      {
         id: "if-9",
         type: "question",
         baseText:
-          "What would you want me to do, specifically, if something terrible happened to you tomorrow?",
+          "If you knew that next year would be a hard year — money, health, family — would you want to spend it with me? Why?",
       },
       {
         id: "if-10",
-        type: "question",
-        baseText:
-          "If we were going to be together for the long run, what's one thing we'd need to figure out that we haven't yet?",
+        type: "vibe-check",
+        baseText: "How ready do you feel, right now, to bet on this?",
+        scale: { min: 1, max: 10, lowLabel: "still unsure", highLabel: "all in" },
       },
     ],
   },
@@ -364,9 +371,10 @@ export const ADVENTURE_CHAPTERS = [
   // -----------------------------------------------------------------------
   // CHAPTER 5 - The Long Game (L15) - Bonding (mature)
   // -----------------------------------------------------------------------
-  // Sternberg consummate love (intimacy + passion + commitment). The
-  // hardest topics: family, mortality, regrets, deep honesty. Reserved for
-  // couples who've earned every prior chapter.
+  // Heaviest chapter overall but still ramps within. Pacing: forever-quality →
+  // honesty vibe → arc-of-us reflection → specific appreciation challenge →
+  // family definition → 20-year success → stable vs interesting → upbringing
+  // not-to-repeat → reciprocal hard question → are-we-ready close.
   {
     id: "long-game",
     title: "Chapter 5: The Long Game",
@@ -375,46 +383,46 @@ export const ADVENTURE_CHAPTERS = [
     sourceUrl: "https://en.wikipedia.org/wiki/Triangular_theory_of_love",
     unlockLevel: 15,
     description:
-      "By the time you reach this chapter, you've walked four others together. The questions here are the ones long-term partners eventually have to answer. Hard topics, hard honesty, the things you'd want to be sure of before saying yes for life.",
+      "By the time you reach this chapter, you've walked four others together. The questions here are the ones long-term partners eventually have to answer. This chapter still opens gently — what about us you'd want to keep — and then asks the harder ones once you're warmed up.",
     schemaVersion: 1,
     prompts: [
       {
         id: "lg-1",
         type: "question",
         baseText:
-          "What's a topic you've been quietly avoiding bringing up with me — and what's been holding you back?",
+          "What's something about the way we are together that you'd want to be true forever?",
       },
       {
         id: "lg-2",
+        type: "vibe-check",
+        baseText: "How honest do you feel you've been with me about your hopes for our future?",
+        scale: { min: 1, max: 10, lowLabel: "holding back", highLabel: "fully open" },
+      },
+      {
+        id: "lg-3",
+        type: "question",
+        baseText:
+          "Looking at us today versus when we started — what's the most surprising change?",
+      },
+      {
+        id: "lg-4",
+        type: "challenge",
+        baseText:
+          "Tell me one specific thing about me that you appreciate, that I'd be surprised to hear you say. Out loud or by voice note.",
+        confirmation: "both-press-done",
+      },
+      {
+        id: "lg-5",
         type: "exchange",
         baseText:
           "Both write what 'family' will mean to us, in your own words. Reveal at the same time. Notice where you overlap and where you don't.",
         revealMode: "simultaneous",
       },
       {
-        id: "lg-3",
+        id: "lg-6",
         type: "question",
         baseText:
           "What does success in a long partnership look like to you? Twenty years in, what do you most hope is true about us?",
-      },
-      {
-        id: "lg-4",
-        type: "question",
-        baseText:
-          "What's something about your family or upbringing you never want to repeat with us?",
-      },
-      {
-        id: "lg-5",
-        type: "vibe-check",
-        baseText: "How honest do you feel you've been with me about your hopes for our future?",
-        scale: { min: 1, max: 10, lowLabel: "holding back", highLabel: "fully open" },
-      },
-      {
-        id: "lg-6",
-        type: "challenge",
-        baseText:
-          "Write one thing you've been afraid to ask me, and ask it. Out loud or by voice note, your choice. I'll do the same.",
-        confirmation: "both-press-done",
       },
       {
         id: "lg-7",
@@ -424,16 +432,16 @@ export const ADVENTURE_CHAPTERS = [
       },
       {
         id: "lg-8",
-        type: "exchange",
+        type: "question",
         baseText:
-          "Both write the three biggest regrets you'd want to have avoided by the time you're old. Reveal at the same time.",
-        revealMode: "simultaneous",
+          "What's something about your family or upbringing you never want to repeat with us?",
       },
       {
         id: "lg-9",
-        type: "question",
+        type: "challenge",
         baseText:
-          "What's something you'd want me to tell you about yourself when you can't see it clearly anymore?",
+          "Write one thing you've been afraid to ask me, and ask it. Out loud or by voice note. I'll do the same.",
+        confirmation: "both-press-done",
       },
       {
         id: "lg-10",
