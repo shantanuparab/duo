@@ -17,66 +17,41 @@ export const ADVENTURE_CHAPTERS = [
   {
     id: "love-maps",
     title: "Chapter 1: Love Maps",
-    subtitle: "Knowing each other's inner world",
+    subtitle: "Getting to know your weather",
     framework: "Based on Dr. John Gottman's Sound Relationship House",
     sourceUrl: "https://www.gottman.com/blog/love-maps/",
     description:
-      "Strong relationships are built on knowing each other deeply — not just the surface, but the small histories, the hidden fears, the places we feel most ourselves. Walk this chapter slowly. One prompt a day, both of you.",
+      "Knowing each other doesn't start with the big stuff. It starts with the small weather: pet peeves, comfort food, the dumb things you loved as a kid, the perfect Sunday. Walk this chapter slowly. One prompt a day, both of you.",
     schemaVersion: 1,
+    // Gentle ramp: light/playful prompts first, then a small step into reflection,
+    // ending with a low-stakes future-vision exchange. The heavier Love Maps
+    // territory (family-of-origin rules, hidden fears, mortality, anxiety
+    // triggers) is deferred to a future Chapter 1.5 / Chapter 3+ once trust
+    // is built. The curriculum bounces here if Day 1 asks for too much.
     prompts: [
       {
         id: "lm-1",
         type: "question",
         baseText:
-          "What's one rule from your family growing up that you didn't realize was a \"rule\" until you were older? How do you feel about it now?",
-        tags: ["family", "origin"],
+          "What's one small thing that always makes you smile, no matter how rough the day's been?",
+        tags: ["light", "joy"],
       },
       {
         id: "lm-2",
-        type: "question",
-        baseText:
-          "Name one fear you have that you don't think anyone really knows about. Not the dramatic one — the quiet one.",
-        tags: ["fear", "vulnerability"],
+        type: "vibe-check",
+        baseText: "How are you feeling about us today?",
+        scale: { min: 1, max: 10, lowLabel: "off", highLabel: "really good" },
+        tags: ["state", "light"],
       },
       {
         id: "lm-3",
-        type: "challenge",
+        type: "question",
         baseText:
-          "Call your partner before bed tonight. Tell them one thing they did this week that surprised you in a good way.",
-        confirmation: "both-press-done",
-        tags: ["challenge", "real-world"],
+          "What did you have for breakfast this morning? Was it actually good or just functional?",
+        tags: ["everyday", "light"],
       },
       {
         id: "lm-4",
-        type: "question",
-        baseText:
-          "If you could write one line of your future obituary today, what would you most want it to say?",
-        tags: ["dreams", "values"],
-      },
-      {
-        id: "lm-5",
-        type: "exchange",
-        baseText:
-          "Both write three things you'd most want our future home to feel like. (Words, smells, light, sounds — anything.) Reveal at the same time.",
-        revealMode: "simultaneous",
-        tags: ["future", "exchange"],
-      },
-      {
-        id: "lm-6",
-        type: "question",
-        baseText:
-          "What's a kind of moment that always quietly makes you anxious, that you've never explained to me?",
-        tags: ["stress", "vulnerability"],
-      },
-      {
-        id: "lm-7",
-        type: "vibe-check",
-        baseText: "How emotionally close do you feel to me right now?",
-        scale: { min: 1, max: 10, lowLabel: "distant", highLabel: "right here" },
-        tags: ["state", "relational"],
-      },
-      {
-        id: "lm-8",
         type: "challenge",
         baseText:
           "Send a photo of the most boring thing within reach right now, and tell them why it actually makes you happy.",
@@ -84,19 +59,49 @@ export const ADVENTURE_CHAPTERS = [
         tags: ["challenge", "playful"],
       },
       {
+        id: "lm-5",
+        type: "question",
+        baseText:
+          "What's one of your weirdest pet peeves? The kind you can't even justify out loud.",
+        tags: ["personality", "playful"],
+      },
+      {
+        id: "lm-6",
+        type: "exchange",
+        baseText:
+          "Both write three things you'd want a perfect lazy Sunday to include. Reveal at the same time.",
+        revealMode: "simultaneous",
+        tags: ["preferences", "exchange"],
+      },
+      {
+        id: "lm-7",
+        type: "question",
+        baseText:
+          "What's something dumb you absolutely loved as a kid? Cartoon, food, hobby, anything.",
+        tags: ["nostalgia", "playful"],
+      },
+      {
+        id: "lm-8",
+        type: "challenge",
+        baseText:
+          "Call them tonight before bed (audio or video, your call). Tell them one thing they did this week that surprised you in a good way.",
+        confirmation: "both-press-done",
+        tags: ["challenge", "warmth"],
+      },
+      {
         id: "lm-9",
         type: "question",
         baseText:
-          "Where in the world (a place, a time of day, a kind of room, anywhere) do you feel most like yourself?",
+          "Where in the world do you feel most like yourself? It can be a place, a time of day, a kind of room — anywhere.",
         tags: ["self", "comfort"],
       },
       {
         id: "lm-10",
         type: "exchange",
         baseText:
-          "Both write the earliest memory you have of feeling truly understood. Reveal at the same time.",
+          "Both write what you'd most want this thing-between-us to feel like over the next few months. Three short phrases or a sentence. Reveal at the same time.",
         revealMode: "simultaneous",
-        tags: ["memory", "exchange"],
+        tags: ["future", "exchange"],
       },
     ],
   },
