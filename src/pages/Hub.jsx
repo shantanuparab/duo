@@ -62,7 +62,10 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
   // and Adventures both consume this data via props — no double listener.
   const [chapterData, setChapterData] = useState(null);
   const [activeChapterId, setActiveChapterId] = useState(() => {
-    return localStorage.getItem(`vc_active_chapter_${room}`) || getCurrentChapter().id;
+    // Default to the highest-unlocked chapter at current level, or any
+    // previously-saved active chapter if it's still unlocked.
+    const saved = localStorage.getItem(`vc_active_chapter_${room}`);
+    return saved || getCurrentChapter(getLevel(roomData?.xp ?? 0).level).id;
   });
   useEffect(() => {
     if (!room) return;

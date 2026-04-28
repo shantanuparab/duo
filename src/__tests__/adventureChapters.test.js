@@ -4,6 +4,7 @@ import {
   SIDE_QUEST_REPAIR,
   getChapterById,
   getCurrentChapter,
+  getNextChapter,
   validateAnswerShape,
 } from "../data/adventureChapters";
 
@@ -54,6 +55,58 @@ describe("adventureChapters schema integrity", () => {
 
   it("Side Quest (Repair Toolkit) has 5 prompts (eng review premise 2)", () => {
     expect(SIDE_QUEST_REPAIR.prompts.length).toBe(5);
+  });
+
+  it("ships exactly 5 chapters mapped to relationship-stage research", () => {
+    expect(ADVENTURE_CHAPTERS.length).toBe(5);
+    const ids = ADVENTURE_CHAPTERS.map((c) => c.id);
+    expect(ids).toEqual([
+      "love-maps",
+      "becoming-closer",
+      "becoming-us",
+      "imagined-futures",
+      "long-game",
+    ]);
+  });
+
+  it("each chapter has unlockLevel and levels are strictly increasing", () => {
+    let prev = 0;
+    for (const c of ADVENTURE_CHAPTERS) {
+      expect(typeof c.unlockLevel).toBe("number");
+      expect(c.unlockLevel).toBeGreaterThan(prev);
+      prev = c.unlockLevel;
+    }
+  });
+
+  it("each chapter has 10 prompts (uniform pacing across the journey)", () => {
+    for (const c of ADVENTURE_CHAPTERS) {
+      expect(c.prompts.length, `${c.id} should have 10 prompts`).toBe(10);
+    }
+  });
+});
+
+describe("chapter navigation helpers", () => {
+  it("getCurrentChapter(1) returns Chapter 1 (none unlocked yet but fallback)", () => {
+    expect(getCurrentChapter(1).id).toBe("love-maps");
+  });
+
+  it("getCurrentChapter at each unlock level returns that chapter", () => {
+    expect(getCurrentChapter(3).id).toBe("love-maps");
+    expect(getCurrentChapter(5).id).toBe("becoming-closer");
+    expect(getCurrentChapter(7).id).toBe("becoming-us");
+    expect(getCurrentChapter(10).id).toBe("imagined-futures");
+    expect(getCurrentChapter(15).id).toBe("long-game");
+    expect(getCurrentChapter(20).id).toBe("long-game");
+  });
+
+  it("getNextChapter walks the list", () => {
+    expect(getNextChapter("love-maps").id).toBe("becoming-closer");
+    expect(getNextChapter("becoming-closer").id).toBe("becoming-us");
+    expect(getNextChapter("long-game")).toBeNull();
+  });
+
+  it("getNextChapter returns null for unknown id", () => {
+    expect(getNextChapter("bogus-chapter")).toBeNull();
   });
 });
 

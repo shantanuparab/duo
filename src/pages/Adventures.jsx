@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { getChapterById, getCurrentChapter, ADVENTURE_CHAPTERS } from "../data/adventureChapters";
+import { getChapterById, getCurrentChapter, getNextChapter } from "../data/adventureChapters";
+import { getLevel } from "../data/levels";
 import PromptRenderer from "../components/prompts/PromptRenderer";
 import { submitAdventureAnswer, advanceAdventure } from "../firebase";
 
@@ -12,11 +13,10 @@ import { submitAdventureAnswer, advanceAdventure } from "../firebase";
 // In a dev room (roomData.dev), the 24h advance gate is skipped so testing is fast.
 
 export default function Adventures({ room, roomData, playerId, chapterId, chapterData, onSelectChapter, onBack }) {
-  const chapter = (chapterId ? getChapterById(chapterId) : null) || getCurrentChapter();
-  const chapterIdx = ADVENTURE_CHAPTERS.findIndex((c) => c.id === chapter.id);
-  const nextChapter = chapterIdx >= 0 && chapterIdx < ADVENTURE_CHAPTERS.length - 1
-    ? ADVENTURE_CHAPTERS[chapterIdx + 1]
-    : null;
+  const level = getLevel(roomData?.xp ?? 0).level;
+  const chapter = (chapterId ? getChapterById(chapterId) : null) || getCurrentChapter(level);
+  const nextChapter = getNextChapter(chapter.id);
+  const nextChapterUnlocked = nextChapter && nextChapter.unlockLevel <= level;
   const [submitError, setSubmitError] = useState("");
   const [advancing, setAdvancing] = useState(false);
   // Perspective: which player slot you're submitting as. In production this
@@ -207,11 +207,13 @@ export default function Adventures({ room, roomData, playerId, chapterId, chapte
             You've walked {chapter.title}.
           </div>
           <div style={{ opacity: 0.7, fontSize: "0.8rem", lineHeight: 1.5, marginBottom: nextChapter ? "1rem" : 0 }}>
-            {nextChapter
+            {nextChapter && nextChapterUnlocked
               ? `The Owl tips its head. ${nextChapter.title} is ready when you are.`
-              : "The Owl tips its head. The path continues — more soon."}
+              : nextChapter
+                ? `The Owl tips its head. ${nextChapter.title} unlocks at Level ${nextChapter.unlockLevel}. Keep playing.`
+                : "The Owl tips its head. You've walked the whole path."}
           </div>
-          {nextChapter && onSelectChapter && (
+          {nextChapter && nextChapterUnlocked && onSelectChapter && (
             <button
               className="btn btn-primary"
               onClick={() => onSelectChapter(nextChapter.id)}

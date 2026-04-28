@@ -100,7 +100,7 @@ export default function DevPanel({ room, roomData }) {
           <div style={{ marginBottom: "0.5rem" }}>
             <div style={{ fontSize: "0.7rem", opacity: 0.7, marginBottom: "0.25rem" }}>Jump to level</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-              {[1, 3, 5, 7, 10, 20].map((L) => (
+              {[1, 3, 5, 7, 10, 15, 20].map((L) => (
                 <button
                   key={L}
                   onClick={() => jumpToLevel(L)}
