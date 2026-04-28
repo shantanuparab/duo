@@ -1,0 +1,72 @@
+rules_version = '2';
+
+// Vibe Check Firestore rules.
+//
+// TRUST MODEL (Phase 1, n=2):
+//   Today's app uses localStorage-derived player IDs, not Firebase Auth.
+//   The "key" to a room is the 6-char room code in the URL/invite.
+//   Anyone with the code can read and write that room's data.
+//
+//   These rules enforce STRUCTURAL constraints on top of that model:
+//     - You can't delete an Adventures chapter doc.
+//     - You can't advance an Adventures chapter by more than +1 step.
+//     - You can't create an Adventures chapter mid-progress.
+//     - You can't write a chapter doc with the wrong schemaVersion.
+//
+//   The "both partners answered" check and the 24h pacing gate are enforced
+//   CLIENT-SIDE in advanceAdventure(). At n=2 the founder isn't going to bypass
+//   his own client.
+//
+// TODO before TestFlight launch (per design doc 2026-04-14):
+//   - Migrate to Firebase Anonymous Auth (gives every client a stable UID).
+//   - Tighten room-level rules so only members of a room can read/write.
+//   - Move the "both answered + 24h elapsed" gate into the rule itself.
+//
+// Deploy: `firebase deploy --only firestore:rules`
+// Test:   see firestore.rules.test.js (Day 8)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -- Top-level room doc --
+    // Open access (room code is the gate). Member-only enforcement comes with Auth migration.
+    match /rooms/{roomId} {
+      allow read, write: if true;
+
+      // -- Generic subcollections (cards, notes, pins, custom-cards, favorites, etc.) --
+      // Same trust model as parent; same TODO.
+      match /{subcoll}/{docId} {
+        allow read, write: if true;
+      }
+
+      // -- Adventures (chapters + side quests share this subcollection) --
+      // Override the generic match above with structural constraints.
+      match /adventures/{adventureId} {
+        allow read: if true;
+        allow delete: if false;
+
+        // Side Quest sessions (id matches `sidequest-*`) are loose — no advance gate.
+        // Anyone with the room code can create and update them.
+        allow create, update: if isSideQuest(adventureId);
+
+        // Chapter create: must start at promptIndex 0 with the current schema.
+        // (Side quests are handled by the rule above and skip this.)
+        allow create: if !isSideQuest(adventureId)
+          && request.resource.data.schemaVersion == 1
+          && request.resource.data.currentPromptIndex == 0;
+
+        // Chapter update: either writing your answer (no advance) OR advancing by +1.
+        // Both-answered + 24h gate are enforced client-side for now.
+        allow update: if !isSideQuest(adventureId) && (
+          request.resource.data.currentPromptIndex == resource.data.currentPromptIndex
+          ||
+          request.resource.data.currentPromptIndex == resource.data.currentPromptIndex + 1
+        );
+      }
+    }
+  }
+}
+
+function isSideQuest(adventureId) {
+  return adventureId.matches('sidequest-.*');
+}

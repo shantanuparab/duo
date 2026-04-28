@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { drawCard, setOnline, endRoom, subscribeCustomCards, subscribeFavorites, setMood, sendPoke } from "../firebase";
+import { drawCard, setOnline, endRoom, subscribeCustomCards, subscribeFavorites, setMood, sendPoke, startSideQuest, subscribeAdventure } from "../firebase";
 import { collection, doc, getFirestore, onSnapshot, query, orderBy } from "firebase/firestore";
 import { getSavedRooms } from "../App";
 import { PhotoImg } from "../components/PhotoViewer";
@@ -19,6 +19,11 @@ import Apartment from "./Apartment";
 import AnswerHistory from "./AnswerHistory";
 import MiniGames from "./MiniGames";
 import Tutorial from "./Tutorial";
+import Adventures from "./Adventures";
+import SideQuest from "./SideQuest";
+import AdventureMap from "../components/AdventureMap";
+import useSideQuestPrompt from "../hooks/useSideQuestPrompt";
+import { SIDE_QUEST_REPAIR, getCurrentChapter } from "../data/adventureChapters";
 import { getLevel } from "../data/levels";
 
 // Heart evolves with level — each stage has a relationship phase
@@ -50,6 +55,38 @@ function getHeart(level) {
 
 export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom }) {
   const [view, setView] = useState("hub");
+  const [activeSideQuestId, setActiveSideQuestId] = useState(null);
+  const [sideQuestStarting, setSideQuestStarting] = useState(false);
+  const sideQuestPrompt = useSideQuestPrompt(roomData, playerId);
+  // Single Adventures subscription lifted to Hub (eng review 4C). AdventureMap
+  // and Adventures both consume this data via props — no double listener.
+  const [chapterData, setChapterData] = useState(null);
+  const [activeChapterId, setActiveChapterId] = useState(() => {
+    return localStorage.getItem(`vc_active_chapter_${room}`) || getCurrentChapter().id;
+  });
+  useEffect(() => {
+    if (!room) return;
+    setChapterData(null); // reset between chapters
+    return subscribeAdventure(room, activeChapterId, setChapterData);
+  }, [room, activeChapterId]);
+  function selectChapter(chapterId) {
+    setActiveChapterId(chapterId);
+    if (room) localStorage.setItem(`vc_active_chapter_${room}`, chapterId);
+  }
+
+  async function handleStartSideQuest() {
+    if (sideQuestStarting) return;
+    setSideQuestStarting(true);
+    try {
+      const sessionId = await startSideQuest({ code: room, sideQuest: SIDE_QUEST_REPAIR });
+      setActiveSideQuestId(sessionId);
+      setView("sidequest");
+    } catch (e) {
+      console.error("Failed to start side quest:", e);
+    } finally {
+      setSideQuestStarting(false);
+    }
+  }
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [showHeartbreak, setShowHeartbreak] = useState(false);
   const [showDice, setShowDice] = useState(false);
@@ -370,6 +407,8 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
   if (view === "answers") return <AnswerHistory room={room} playerId={playerId} roomData={roomData} onBack={() => setView("hub")} />;
   if (view === "tutorial") return <Tutorial type="cards" onBack={() => setView("hub")} />;
   if (view === "tutorial-games") return <Tutorial type="games" onBack={() => setView("hub")} />;
+  if (view === "adventures") return <Adventures room={room} roomData={roomData} playerId={playerId} chapterId={activeChapterId} chapterData={chapterData} onSelectChapter={selectChapter} onBack={() => setView("hub")} />;
+  if (view === "sidequest" && activeSideQuestId) return <SideQuest room={room} roomData={roomData} playerId={playerId} sessionId={activeSideQuestId} onBack={() => { setActiveSideQuestId(null); setView("hub"); }} />;
 
   // Milestones
   const unlockedDeckIds = getUnlockedDecks(lvl.level);
@@ -535,6 +574,48 @@ export default function Hub({ room, playerId, roomData, onLeave, onSwitchRoom })
           <button className="btn btn-ghost" onClick={() => { setDismissedCard(null); setView("play"); }} style={{ width: "auto", padding: ".3rem .6rem", fontSize: ".75rem" }}>View card</button>
         </div>
       )}
+
+      {/* Side Quest CTA — surfaces when partner mood is in the trigger set */}
+      {sideQuestPrompt.shouldShow && lvl.level >= 3 && (
+        <div
+          style={{
+            margin: "0.75rem auto 0",
+            maxWidth: 380,
+            padding: "0.85rem 1rem",
+            background: "linear-gradient(135deg, rgba(170,140,255,0.12), rgba(170,140,255,0.04))",
+            border: "1px solid rgba(170,140,255,0.4)",
+            borderRadius: 14,
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            cursor: sideQuestStarting ? "wait" : "pointer",
+            opacity: sideQuestStarting ? 0.6 : 1,
+          }}
+          onClick={sideQuestStarting ? undefined : handleStartSideQuest}
+          role="button"
+          aria-label="Start a Side Quest"
+        >
+          <div style={{ fontSize: "1.5rem" }}>🌙</div>
+          <div style={{ flex: 1, fontSize: "0.85rem", lineHeight: 1.4 }}>
+            <div style={{ fontWeight: 600, marginBottom: "0.15rem" }}>
+              {sideQuestPrompt.partnerName} seems off.
+            </div>
+            <div style={{ opacity: 0.75, fontSize: "0.78rem" }}>
+              Want to walk a Side Quest together?
+            </div>
+          </div>
+          <div style={{ opacity: 0.6, fontSize: "1.1rem" }}>→</div>
+        </div>
+      )}
+
+      {/* Adventures map — structured journey, sits next to the dice (random draw) */}
+      <AdventureMap
+        level={lvl.level}
+        currentChapterIndex={chapterData?.currentPromptIndex ?? 0}
+        p1Index={chapterData?.currentPromptIndex ?? 0}
+        p2Index={chapterData?.currentPromptIndex ?? 0}
+        onOpen={() => setView("adventures")}
+      />
 
       {/* Dice roll button */}
       <button className="btn btn-primary dice-btn" onClick={() => setShowDice(true)} disabled={cardsLocked}>

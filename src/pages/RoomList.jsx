@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function RoomList({ rooms, onEnter, onNewRoom, onJoinRoom, onRemove, onRename }) {
+export default function RoomList({ rooms, onEnter, onNewRoom, onJoinRoom, onRemove, onRename, devMode, onOpenDevRoom, devError }) {
   const [editingCode, setEditingCode] = useState(null);
   const [nickname, setNickname] = useState("");
   const [confirmRemove, setConfirmRemove] = useState(null);
@@ -29,11 +29,33 @@ export default function RoomList({ rooms, onEnter, onNewRoom, onJoinRoom, onRemo
         <div className="logo-glow">✨</div>
         <h1>vibe check</h1>
         <p className="subtitle">your rooms</p>
+        {devMode && (
+          <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--accent)", opacity: 0.85 }}>
+            🧪 Dev mode active
+          </div>
+        )}
       </div>
+
+      {devMode && (
+        <div style={{ margin: "0.5rem 0 1rem", padding: "0.85rem", background: "rgba(255,180,80,0.08)", border: "1px dashed rgba(255,180,80,0.4)", borderRadius: 12 }}>
+          <div style={{ fontSize: "0.78rem", opacity: 0.85, marginBottom: "0.5rem", lineHeight: 1.4 }}>
+            Dev room is private to this device. Use it to test features without touching your real room.
+          </div>
+          <button className="btn btn-secondary" onClick={onOpenDevRoom} style={{ width: "100%" }}>
+            🧪 Open Dev Room
+          </button>
+          {devError && <div style={{ marginTop: "0.5rem", fontSize: "0.75rem", color: "var(--danger, #f88)" }}>{devError}</div>}
+        </div>
+      )}
 
       <div className="room-list-items">
         {sorted.map((r) => (
-          <div key={r.code} className="room-list-card fade-in">
+          <div key={r.code} className="room-list-card fade-in" style={r.dev ? { borderLeft: "3px solid var(--accent)" } : undefined}>
+            {r.dev && (
+              <div style={{ fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", opacity: 0.7, marginBottom: "0.25rem", color: "var(--accent)" }}>
+                Dev room
+              </div>
+            )}
             {editingCode === r.code ? (
               <div className="room-edit-row">
                 <input

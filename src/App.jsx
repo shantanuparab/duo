@@ -5,6 +5,8 @@ import RoomList from "./pages/RoomList";
 import { subscribeRoom } from "./firebase";
 import MoodParticles from "./components/MoodParticles";
 import { applyMoodTheme } from "./components/MoodSlider";
+import { isDevMode, enterDevRoom, isDevRoomCode } from "./lib/devmode";
+import DevPanel from "./components/DevPanel";
 
 const APP_VERSION = "3.0";
 const UPDATE_NOTES = [
@@ -32,7 +34,7 @@ export function getSavedRooms() {
   } catch { return []; }
 }
 
-export function saveRoomToList(code, pid, myName, partnerName) {
+export function saveRoomToList(code, pid, myName, partnerName, options = {}) {
   const rooms = getSavedRooms();
   const idx = rooms.findIndex((r) => r.code === code);
   const entry = {
@@ -42,6 +44,8 @@ export function saveRoomToList(code, pid, myName, partnerName) {
     myName: myName || (idx >= 0 ? rooms[idx].myName : "") || "",
     partnerName: partnerName || (idx >= 0 ? rooms[idx].partnerName : "") || "",
     lastAccessed: Date.now(),
+    // Dev rooms are tagged so RoomList can filter them out unless in dev mode.
+    dev: options.dev !== undefined ? options.dev : (idx >= 0 ? rooms[idx].dev : false),
   };
   if (idx >= 0) {
     rooms[idx] = { ...rooms[idx], ...entry };
@@ -118,6 +122,8 @@ function WhatsNew({ onDismiss }) {
 
 export default function App() {
   const [inviteCode] = useState(getCodeFromURL);
+  const [devMode] = useState(isDevMode);
+  const [devError, setDevError] = useState("");
 
   // If there's an invite code and localStorage points to a DIFFERENT room, clear it
   // so the invite flow takes over
@@ -227,6 +233,16 @@ export default function App() {
     renameRoom(code, nickname);
   }
 
+  async function handleOpenDevRoom() {
+    setDevError("");
+    try {
+      const r = await enterDevRoom();
+      handleJoin(r.code, r.playerId);
+    } catch (e) {
+      setDevError(e.message || "Could not open dev room");
+    }
+  }
+
   function dismissWhatsNew() {
     localStorage.setItem("vc_version", APP_VERSION);
     setShowWhatsNew(false);
@@ -259,21 +275,31 @@ export default function App() {
       );
     }
 
+    // Filter dev rooms out of the regular list unless we're in dev mode.
+    const visibleRooms = devMode ? savedRooms : savedRooms.filter((r) => !r.dev);
+
     // Show room list
     return (
       <>
         {showWhatsNew && <WhatsNew onDismiss={dismissWhatsNew} />}
         <RoomList
-          rooms={savedRooms}
+          rooms={visibleRooms}
           onEnter={handleEnterRoom}
           onNewRoom={() => setShowHome(true)}
           onJoinRoom={() => setShowHome(true)}
           onRemove={handleRemoveRoom}
           onRename={handleRenameRoom}
+          devMode={devMode}
+          onOpenDevRoom={handleOpenDevRoom}
+          devError={devError}
         />
       </>
     );
   }
+
+  // Show the dev panel anywhere inside a dev room (it's position: fixed so it
+  // floats above whatever view is rendered).
+  const isDevRoom = roomData?.dev === true || isDevRoomCode(room);
 
   return (
     <>
@@ -286,6 +312,7 @@ export default function App() {
         onLeave={handleLeave}
         onSwitchRoom={handleSwitchRoom}
       />
+      {isDevRoom && roomData && <DevPanel room={room} roomData={roomData} />}
     </>
   );
 }

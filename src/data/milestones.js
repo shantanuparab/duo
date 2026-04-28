@@ -3,7 +3,7 @@
 export const MILESTONES = [
   { level: 1,  title: "Getting Started",      emoji: "🌱", unlock: "Basic decks + home + games",      unlockedDecks: ["wyr", "tot", "daily", "rate", "challenge"], feature: "apartment,notes,miniGames" },
   { level: 2,  title: "New Friend",           emoji: "🐾", unlock: "Adopt a pet!",                    unlockedDecks: [], feature: "pet" },
-  { level: 3,  title: "Hot Takes",            emoji: "🔥", unlock: "Hot Takes + basic gifts",         unlockedDecks: ["hottake"], feature: "gifts,songs" },
+  { level: 3,  title: "Hot Takes",            emoji: "🔥", unlock: "Hot Takes + Adventures + gifts",  unlockedDecks: ["hottake"], feature: "gifts,songs,adventures" },
   { level: 4,  title: "Playground",           emoji: "🎾", unlock: "Pet playground",                   unlockedDecks: [], feature: "playground" },
   { level: 5,  title: "Butterflies",          emoji: "🦋", unlock: "Butterflies + bouquets",          unlockedDecks: ["spicy"], feature: "bouquets" },
   { level: 6,  title: "Getting Real",         emoji: "🎭", unlock: "2 Truths 1 Lie",                  unlockedDecks: ["2truths"] },
@@ -27,6 +27,7 @@ export const MILESTONES = [
 export const FEATURE_PREVIEWS = [
   { feature: "pet", emoji: "🐾", label: "Pets", desc: "Adopt a pet together" },
   { feature: "gifts", emoji: "🎁", label: "Gifts", desc: "Send flowers & gifts" },
+  { feature: "adventures", emoji: "🦉", label: "Adventures", desc: "Walk the path together" },
   { feature: "songs", emoji: "🎵", label: "Songs", desc: "Share music" },
   { feature: "playground", emoji: "🎾", label: "Playground", desc: "Play with your pet" },
   { feature: "bouquets", emoji: "💐", label: "Bouquets", desc: "Send & water bouquets" },

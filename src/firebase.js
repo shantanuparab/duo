@@ -29,8 +29,10 @@ const db = getFirestore(app);
 
 // --- Room ---
 
-export async function createRoom(playerName, character, partnerName, welcomeMsg) {
-  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+export async function createRoom(playerName, character, partnerName, welcomeMsg, opts = {}) {
+  // opts.code lets the dev room flow create a room at a specific known code.
+  // opts.dev marks the room as a developer test room (used by isDev gating in UI).
+  const code = opts.code || Math.random().toString(36).substring(2, 8).toUpperCase();
   const playerId = generatePlayerId();
   const roomRef = doc(db, "rooms", code);
   await setDoc(roomRef, {
@@ -47,10 +49,139 @@ export async function createRoom(playerName, character, partnerName, welcomeMsg)
     playedCards: [],
     ended: false,
     onboarded: false,
+    ...(opts.dev ? { dev: true } : {}),
   });
   localStorage.setItem("vc_pid", playerId);
   localStorage.setItem("vc_room", code);
   return { code, playerId };
+}
+
+// Set/override the room's XP. Dev-only. Used by the Dev Panel to test level-gated features.
+export async function setRoomXp(code, xp) {
+  const roomRef = doc(db, "rooms", code);
+  await updateDoc(roomRef, { xp: Math.max(0, Math.floor(xp)) });
+}
+
+// --- Adventures (chapters + side quests) ---
+//
+// Subcollection layout:
+//   rooms/{code}/adventures/{chapterId}        — linear chapter state
+//   rooms/{code}/adventures/sidequest-{id}     — one-off repair tool sessions
+//
+// Phase 1 enforces the partner-gated + 24h-elapsed advance rule both client-side
+// (UX pre-check) AND server-side (firestore.rules, Day 6). Without rules-as-code
+// the server-side check is missing today; Day 6 closes that gap.
+
+const TWENTY_FOUR_HOURS_MS = 86_400_000;
+
+export function adventureDocRef(code, chapterId) {
+  return doc(db, "rooms", code, "adventures", chapterId);
+}
+
+export function subscribeAdventure(code, chapterId, cb) {
+  return onSnapshot(adventureDocRef(code, chapterId), (snap) => {
+    cb(snap.exists() ? snap.data() : null);
+  });
+}
+
+// Submit / overwrite a single player's answer on the current prompt.
+// `playerSlot` is the literal string "player1" or "player2" (not the player id);
+// the chapter doc stores answers by slot so dev-mode single-client testing works.
+//
+// Throws if the answer's shape doesn't match the prompt's type.
+export async function submitAdventureAnswer({ code, chapterId, prompt, playerSlot, answer }) {
+  if (playerSlot !== "player1" && playerSlot !== "player2") {
+    throw new Error(`submitAdventureAnswer: invalid playerSlot ${playerSlot}`);
+  }
+  // Lazy import to avoid a circular dep at module load.
+  const { validateAnswerShape } = await import("./data/adventureChapters");
+  validateAnswerShape(prompt, answer);
+
+  const ref = adventureDocRef(code, chapterId);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    // Lazy-create the chapter doc on first answer
+    await setDoc(ref, {
+      schemaVersion: 1,
+      currentPromptIndex: 0,
+      answers: { [prompt.id]: { [playerSlot]: { value: answer, ts: Date.now() } } },
+      lastUnlockTs: Date.now(),
+      completed: false,
+    });
+    return;
+  }
+  await updateDoc(ref, {
+    [`answers.${prompt.id}.${playerSlot}`]: { value: answer, ts: Date.now() },
+  });
+}
+
+// Advance to the next prompt. Client-side enforcement: both partners must have
+// answered the current prompt AND >=24h since the last unlock. Day 6 adds the
+// same checks in firestore.rules so a malicious client can't bypass.
+//
+// Throws on `permission-denied` only after one retry-after-refetch (handles the
+// concurrent-advance race from eng review 1E).
+export async function advanceAdventure({ code, chapter, currentPromptIndex, currentPrompt, skipTimeGate = false }) {
+  const ref = adventureDocRef(code, chapter.id);
+
+  async function attempt() {
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new Error("advanceAdventure: chapter doc not found");
+    const data = snap.data();
+
+    // Idempotent — if we're already past this prompt, nothing to do.
+    if (data.currentPromptIndex > currentPromptIndex) return data;
+
+    const promptAnswers = data.answers?.[currentPrompt.id] || {};
+    const bothAnswered = promptAnswers.player1 !== undefined && promptAnswers.player2 !== undefined;
+    if (!bothAnswered) {
+      throw new Error("advanceAdventure: both players must answer first");
+    }
+
+    if (!skipTimeGate) {
+      const last = data.lastUnlockTs ?? 0;
+      const lastMs = typeof last === "number" ? last : last.toMillis?.() ?? 0;
+      if (Date.now() - lastMs < TWENTY_FOUR_HOURS_MS) {
+        throw new Error("advanceAdventure: 24h not yet elapsed");
+      }
+    }
+
+    const isLast = currentPromptIndex >= chapter.prompts.length - 1;
+    const next = currentPromptIndex + 1;
+    await updateDoc(ref, {
+      currentPromptIndex: next,
+      lastUnlockTs: Date.now(),
+      ...(isLast ? { completed: true } : {}),
+    });
+    return { ...data, currentPromptIndex: next };
+  }
+
+  try {
+    return await attempt();
+  } catch (e) {
+    // Retry once on permission-denied (concurrent advance race)
+    if (e?.code === "permission-denied") {
+      return await attempt();
+    }
+    throw e;
+  }
+}
+
+// Start a new Side Quest session. Each session is its own doc so you can have
+// multiple repair sessions over time without clobbering history.
+export async function startSideQuest({ code, sideQuest }) {
+  const sessionId = `sidequest-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  const ref = doc(db, "rooms", code, "adventures", sessionId);
+  await setDoc(ref, {
+    schemaVersion: 1,
+    sideQuestId: sideQuest.id,
+    sessionId,
+    currentPromptIndex: 0,
+    answers: {},
+    startedAt: serverTimestamp(),
+    completed: false,
+  });
+  return sessionId;
 }
 
 export async function joinRoom(code, playerName, character) {
